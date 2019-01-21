@@ -1,4 +1,58 @@
-* USB
+* e-book
+** e-book drm
+Adobe Digital Editions installation using wine.
+Working workaround:
+
+https://appdb.winehq.org/objectManager.php?sClass=version&iId=33276
+
+""" Begin quote
+
+Selected Test Results
+
+What works
+
+Menu, authorization process, downloading files, viewing files
+
+What does not
+
+Installation out of the box, but has workaround
+
+Workarounds
+
+Install in a wine 32 prefix. Install the 4.5.0 version, since version 4.5.9 will not install giving an error "Adobe Digital Editions is already running". You laso need to install additional packages using winetricks and run a command to solve graphics glitch issue
+
+1. Create clean wine32 prefix
+WINEPREFIX="$HOME/.wine32" WINEARCH=win32 wine wineboot   
+
+2. Install packages required for the installation
+WINEPREFIX="$HOME/.wine32" winetricks corefonts dotnet40    
+
+3. Download Adobe Digital Editions version 4.5.0 from https://filehippo.com/download...
+
+4. Install it
+WINEPREFIX="$HOME/.wine32" WINEARCH=win32 wine ADE_4.5_Installer.exe 
+
+5. Fix graphics glitches
+WINEPREFIX="$HOME/.wine32" winetricks ddr=gdi 
+
+What was not tested
+
+Everything else
+
+Hardware tested
+
+Graphics:
+
+    GPU: Nvidia
+    Driver: proprietary
+
+Additional Comments
+
+""" End of quote
+
+use 'calibre' with DeDRM plugin to remove drm.
+
+* usb
 
 ** Embedded libraries
 - HID: http://www.signal11.us/oss/hidapi/
