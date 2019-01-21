@@ -1,0 +1,48 @@
+* USB
+
+** Embedded libraries
+- HID: http://www.signal11.us/oss/hidapi/
+
+** USB IN A NUTSHELL
+
+Taken from this excellent write-up at https://www.beyondlogic.org/usbnutshell/usb1.shtml.
+
+
+*** Chapter 1
+
+Brief overview off all chapters in the usb-standard and what you *really* need to read.
+In short, the most important, and useful chapters of the usb-standard when designing peripheral devices are chapters (in addition to the material in the discussed guide):
+
+- 2, Terms and Abbreviations
+- 4, Architectural Overview
+- 5, USB Data Flow Model (useful information, but a bit long)
+- 7, Elecrical (only device speed identification is important)
+- 8, Protocol Layer (only status reporting, and handshaking)
+- 9, USB Device Frame Work (the most useful chapter, read in detail)
+
+
+**** Topolgy
+- One master -- called *host* in usb -- per network -- called *bus* in usb.
+- OTG (On-The-Go), multiple entities on a single link can negotiate over who will be the host (eg. for mobile phone)
+- 127 devices per bus.
+- tiered star topology, use hubs to extend network
+
+**** Data Link and Physical
+- Serial bus
+- 4 wires: +5V, GND, D+, D-
+- D+ and D-, differential signaling pair
+- NRZI (non-Return to zero) encoding
+- synch field to synchronize host and reciever
+ 
+**** Plug And Play
+- hotplug
+- host loads and unloads driver automatically
+- PID/VID, Product ID, Vendor ID, used by host to determine correct driver.
+- Pay USB Implementor's form to get PID and VID
+- or search for existing suitable PID/VID for non-commercial projects.
+
+**** Transfer modes
+- Control
+- Interrupt
+- Bulk
+- Isochronous, reserve bandwidth (eg. audio, video aplication)
