@@ -100,3 +100,99 @@ In short, the most important, and useful chapters of the usb-standard when desig
 - Interrupt
 - Bulk
 - Isochronous, reserve bandwidth (eg. audio, video aplication)
+
+*** Chapter 3
+
+USB uses standard colors for the wires.
+| Pin Number | 	Cable Colour | Function  |
+|------------+----------------------+-----------|
+|          1 | red                  | VBUS (5V) |
+|          2 | white                | D-        |
+|          3 | green                | D+        |
+|          4 | black                | ground    |
+|------------+----------------------+-----------|
+
+**** Connectors
+***** USB 1.0
+#+CAPTION: Type A Connector
+[[./images/usb/contypea.gif]]
+
+#+CAPTION: Type B Connector
+[[./images/usb/contypeb.gif]]
+
+***** USB 2.0
+- mini b
+- mini a male
+- mini a female
+- mini ab
+
+***** USB 2.0 revised
+- micro b
+- micro a
+- micro ab
+
+***** USB 3.0
+- a SuperSpeed
+- b SuperSpeed
+- micro b superspeed
+
+***** USB 3.1 and USB 3.2
+- type a
+
+**** Physical
+
+The transmitter signals according to the following tables.
+
+Low speed:
+| value | state | d+  [v] | d+ pull-down [ohm] | d- [v] | d- pull-up [ohm] |
+|-------+-------+---------+--------------------+--------+------------------+
+|     1 | k     | > 2.8   | 15K                | < 0.3  | 1.5K             |
+|     0 | j     | < 0.3   |                    | >  2.8 |                  |
+
+High speed:
+| value | state | d+  [v] | d+ pull-down [ohm] | d- [v] | d- pull-up [ohm] |
+|-------+-------+---------+--------------------+--------+------------------+
+|     0 | k     | < 0.3   |                    | >  2.8 |                  |
+|     1 | j     | > 2.8   | 15K                | < 0.3  | 1.5K             |
+
+Reciever
+
+| state | d+ d- relationship |
+|-------+--------------------|
+| k     | d+ - d- >= + 200mV |
+| j     | d- - d+ <= + 200mV |
+
+characteristic impedance of 90 ohms +/- 15%
+
+**** Speed identification
+
+A usb device annouces its prescence and speed on the bus by pulling either D+ or D- to 3.3v.
+- Full Speed: d+ is pulled to 3.3v by the device.
+- Low Speed:  d+ is pulled to 3.3v by the device.
+The pull-ups can be implemented in silicon, for instance in usb-transcievers.
+
+Highspeed mode: more complicated...
+
+**** Power
+
+- 1 unit load = 100mA.
+- Low-power bus functions: <= 1 unit load; 4.4v <= Vbus <= 5.25
+- High-power bus functions: <= 1 unit load @ configuration, <= 5 unit loads @ operation;  4.75v <= Vbus <= 5.25.
+- Self powered bus functions: <= 1 unit load at all times, the rest may come from external source.
+
+decoupling capacitance must be between 1uF and 10uF.
+
+**** Suspend mode
+- All devices must support this mode
+- Entered when there is no activity for > 3.0ms
+- After suspend triggered, the device must be fully suspended within 7.0ms
+- max load on the bus <= 500uA.
+- This includes quiecsent current, due to required pull-downs on D- and D+ at upstream, and pullups on D- or D+ on device.
+- Host sends keep-alive packets during normal operation
+- Global Suspend
+- Selected Suspend
+ 
+**** Data Signalling Rate 
+- High speed data is clocked at 480.00Mb/s with a data signalling tolerance of ± 500ppm.
+- Full speed data is clocked at 12.000Mb/s with a data signalling tolerance of ±0.25% or 2,500ppm.
+- Low speed data is clocked at 1.50Mb/s with a data signalling tolerance of ±1.5% or 15,000ppm.
