@@ -152,8 +152,8 @@ Low speed:
 High speed:
 | value | state | d+  [v] | d+ pull-down [ohm] | d- [v] | d- pull-up [ohm] |
 |-------+-------+---------+--------------------+--------+------------------+
-|     0 | k     | < 0.3   |                    | >  2.8 |                  |
-|     1 | j     | > 2.8   | 15K                | < 0.3  | 1.5K             |
+|     0 | k     | > 2.8   | 15K                | < 0.3  | 1.5K             |
+|     1 | j     | < 0.3   |                    | >  2.8 |                  |
 
 Reciever
 
@@ -168,7 +168,7 @@ characteristic impedance of 90 ohms +/- 15%
 
 A usb device annouces its prescence and speed on the bus by pulling either D+ or D- to 3.3v.
 - Full Speed: d+ is pulled to 3.3v by the device.
-- Low Speed:  d+ is pulled to 3.3v by the device.
+- Low Speed:  d- is pulled to 3.3v by the device.
 The pull-ups can be implemented in silicon, for instance in usb-transcievers.
 
 Highspeed mode: more complicated...
@@ -196,3 +196,50 @@ decoupling capacitance must be between 1uF and 10uF.
 - High speed data is clocked at 480.00Mb/s with a data signalling tolerance of ± 500ppm.
 - Full speed data is clocked at 12.000Mb/s with a data signalling tolerance of ±0.25% or 2,500ppm.
 - Low speed data is clocked at 1.50Mb/s with a data signalling tolerance of ±1.5% or 15,000ppm.
+
+
+*** Chapter 3
+
+Data is sent as packets, LSBit first.
+Traffic is host driven => no collision handling needed.
+
+The first two fields are:
+
+- Sync, 8 bit, used to syncronize clocks between transmitter and host
+- PID, 8 bit, 4 bits comlpemented and repeated for error detection
+
+PID denotes packet types, there are 4 packet types (token, data, handshake, special),
+each having mulitple sub-types.
+
+The last field is always:
+- EOP, end of packet, Single Ended Zero (SE0) 2 bits, then j 1 bit
+
+****  Token Packet
+- In, host wants to read
+- Out, host wants to write
+- Setup, initiate control transfer
+- SOF, Start of Frame, keep-alive
+**** Data packet
+- Data0
+- Data1
+
+Data field sizes may be at most:
+- 8 bytes, low speed,
+- 1023 bytes, full speed,
+- 1024 bytes, high speed.
+
+Data must be in multiples of 1 byte.
+
+**** Handshake
+- ACK
+- NAK
+- STALL
+
+**** USB Functions
+1 usb device address corresponds to 1 usb function.
+
+1 usb functions may have 1-?? endpoints, all usb device must support endpoint 0.
+
+Pipes defines how an enpoint is used by the host and the device. The two types of pipes are:
+- Stream pipe; uni-directional (in or out); bulk, isochronous, interrupt; application defined format, 
+- Message pipe; omni-directional, but Host controlled; format defined by USB,
