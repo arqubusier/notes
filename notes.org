@@ -57,6 +57,23 @@ use 'calibre' with DeDRM plugin to remove drm.
 ** Embedded libraries
 - HID: http://www.signal11.us/oss/hidapi/
 
+** USB
+
+https://www.totalphase.com/support/articles/200349256-USB-Background
+
+*** Sniffing
+
+Can be done with wireshark
+https://wiki.wireshark.org/USB
+
+libpcap (used by wireshark) does not view usb packets directly. Instead the events provided by
+the (linux) kernel is displayed.
+
+USB Request Block (URB) https://www.kernel.org/doc/html/v4.15/driver-api/usb/URB.html
+
+
+
+
 ** USB IN A NUTSHELL
 
 Taken from this excellent write-up at https://www.beyondlogic.org/usbnutshell/usb1.shtml.
@@ -101,7 +118,7 @@ In short, the most important, and useful chapters of the usb-standard when desig
 - Bulk
 - Isochronous, reserve bandwidth (eg. audio, video aplication)
 
-*** Chapter 3
+*** Chapter 2
 
 USB uses standard colors for the wires.
 | Pin Number | 	Cable Colour | Function  |
@@ -236,10 +253,26 @@ Data must be in multiples of 1 byte.
 - STALL
 
 **** USB Functions
-1 usb device address corresponds to 1 usb function.
+1 usb device address corresponds to 1-??? usb functions/configurations.
 
-1 usb functions may have 1-?? endpoints, all usb device must support endpoint 0.
+1 usb functions/configurations may have 1-?? endpoints, all usb device must support endpoint 0.
 
 Pipes defines how an enpoint is used by the host and the device. The two types of pipes are:
 - Stream pipe; uni-directional (in or out); bulk, isochronous, interrupt; application defined format, 
 - Message pipe; omni-directional, but Host controlled; format defined by USB,
+  
+*** Chapter 4
+
+4 types of endpoints/transfer types
+
+**** Control Transfers
+On endpoint 0 => all devices must listen.
+
+
+**** Interuppt Transfers
+
+**** Bulk Transfers
+
+**** Isochronous Transfers
+
+*** Chapter 5
