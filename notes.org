@@ -71,6 +71,7 @@ the (linux) kernel is displayed.
 
 USB Request Block (URB) https://www.kernel.org/doc/html/v4.15/driver-api/usb/URB.html
 
+The setup structure follows the USB specification for the setup header and thus is in little endian byte order. The USB data is present only in one of two events associated with an URB. If the transfer direction is from the host to the device, the data is present in the 'submit' event, otherwise the data is present in the 'completion' event. The amount of data effectively present into the event can be less than the amount of data effectively exchanged.
 
 
 
