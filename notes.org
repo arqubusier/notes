@@ -276,6 +276,978 @@ On endpoint 0 => all devices must listen.
 **** Isochronous Transfers
 
 *** Chapter 5
+
+* OSI Network
+
+** MTU
+MTU Stands for Maximum Transport Unit.
+It is the largest allowed size of a protocol data unit (PDU) at layer 3 that can be communicated in a single network layer transaction for a particular link.
+
+** Path MTU
+The smallest MTU in a path between to hosts.
+  
+
+** Physical
+
+** Data Link
+
+** Network
+*** IPv4
+
+*** IPv6
+Fragmentation may only be performed by the source node.
+It is therefore strongly recomended to use MTU-discovery to establish the path MTU to avoid packet drop due to too large packets.
+** Transport
+*** TCP
+Complex, Connection-oriented and reliable. Uses handshakes to establish connections and for confirming that messages have arrived.
+
+Reliable Byte Stream protocol: bytes arrive in the same order as sent.
+for a single transmission: loop read()/recv() may return less th 0; 
+
+FAQ 
+
+*** UDP
+Simple, connectionless and unreliable.
+
+**** Unconnected Socket
+'sendto' and 'recvfrom' must be used on an unconnected socket due to the need of specifying the address of the destination.
+
+**** Connected Socket
+
+     int connect(int sockfd, const struct sockaddr *addr,
+                   socklen_t addrlen)
+
+Can be called on UDP as well as TCP.
+For UDP this does not have the effect of establishing a connection.
+Instead it specifies that a UDP socket shall be used only with the peer addressed by 'addr',
+AND that error detection features of UDP are turned on.
+In addition, since the address of the peer is specified by the connect, 'write' or 'send' can be used for output,
+and 'read', 'recvmesg', or 'recvmsg' can be used for input.
+Also, when calling 'sendto' the destination address must be set to NULL.
+
+The error detection features of UDP include a checksum that can detect errors in the payload.
+
+
+** System Tools
+
+*** List Network Interfaces
+
+- ifconfig (linux, solaris)
+- ipadm (solaris)
+- ip (linux, solaris)
+
+*** Inspect Packets
+- snoop (solaris)
+- wireshark (linux, solaris)
+
+
+** Troubleshooting
+
+*** connect: Connection Refused
+
+1. Who is the server, who is the client?
+2. Are there any sockets for wich a server is listening on the expected port and address?
+Check this with netstat ON THE SAME MACHINE AS THE SEREVER.
+Solaris:
+
+  netstat -a -P <PROTOCOL> | grep LISTEN | grep <PORT>
+
+Linux:
+
+  netstat -l -P <PROTOCOL> | grep <PORT>
+
+3. Is the port blocked by a firewall
+Check with tcpdump.
+
+* CAN - Controller Area Network
+
+Network standard for physical and data-link layer
+
+Standards for the physical layer:
+
+Standards for the data-link layer:
+
+
+** Physical
+
+CAN is a serial, differential voltage, two wire bus protocol.
+The two wires are called CAN-low and CAN-high.
+CAN-high has logical level 1 and CAN-low may be 0 or 1. 
+The wires may be used to connect a number of nodes together.
+In CAN the word for a node is a *station*.
+
+
+Can uses the terms *recessive* and *dominant* bits.
+These have logical levels 1 and 0 respectively.
+The terms are so named because if one or more stations drives CAN-low to 0 while one or more stations keeps CAN-low at 1,
+then the wire will have the logical 0.
+Thus the dominant bit 'dominates' over the recessive bits.
+
+*** Frame Formats
+
+Message frames are sent serially, one bit at a time by controlling CAN-LO
+
+From wikipedia:
+
+
+Standard format
+| Field name                               | Length (bits) | Purpose                                                                                                    |
+|------------------------------------------+---------------+------------------------------------------------------------------------------------------------------------|
+| Start-of-frame                           |             1 | Denotes the start of frame transmission                                                                    |
+| Identifier (green)                       |            11 | A (unique) identifier which also represents the message priority                                           |
+| Remote transmission request (RTR) (blue) |             1 | Must be dominant (0) for data frames and recessive (1) for remote request frames (see Remote Frame, below) |
+| Identifier extension bit (IDE)           |             1 | Must be dominant (0) for base frame format with 11-bit identifiers                                         |
+| Reserved bit (r0)                        |             1 | Reserved bit. Must be dominant (0), but accepted as either dominant or recessive.                          |
+| Data length code (DLC) (yellow)          |             4 | Number of bytes of data (0-8 bytes)[a]                                                                     |
+| Data field (red)                         |          0-64 | (0-8 bytes) Data to be transmitted (length in bytes dictated by DLC field)                                 |
+| CRC                                      |            15 | Cyclic redundancy check                                                                                    |
+| CRC delimiter                            |             1 | Must be recessive (1)                                                                                      |
+| ACK slot                                 |             1 | Transmitter sends recessive (1) and any receiver can assert a dominant (0)                                 |
+| ACK delimiter                            |             1 | Must be recessive (1)                                                                                      |
+| End-of-frame (EOF)                       |             7 | Must be recessive (1)                                                                                      |
+
+
+Extended Format
+| Field Name                               | Length (bits) | Purpose                                                                                                    |
+|------------------------------------------+---------------+------------------------------------------------------------------------------------------------------------|
+| Start-of-frame                           |             1 | Denotes the start of frame transmission                                                                    |
+| Identifier A (green)                     |            11 | First part of the (unique) identifier which also represents the message priority                           |
+| Substitute remote request (SRR)          |             1 | Must be recessive (1)                                                                                      |
+| Identifier extension bit (IDE)           |             1 | Must be recessive (1) for extended frame format with 29-bit identifiers                                    |
+| Identifier B (green)                     |            18 | Second part of the (unique) identifier which also represents the message priority                          |
+| Remote transmission request (RTR) (blue) |             1 | Must be dominant (0) for data frames and recessive (1) for remote request frames (see Remote Frame, below) |
+| Reserved bits (r1, r0)                   |             2 | Reserved bits which must be set dominant (0), but accepted as either dominant or recessive                 |
+| Data length code (DLC) (yellow)          |             4 | Number of bytes of data (0-8 bytes)[a]                                                                     |
+| Data field (red)                         |          0-64 | (0-8 bytes) Data to be transmitted (length dictated by DLC field)                                          |
+| CRC                                      |            15 | Cyclic redundancy check                                                                                    |
+| CRC delimiter                            |             1 | Must be recessive (1)                                                                                      |
+| ACK slot                                 |             1 | Transmitter sends recessive (1) and any receiver can assert a dominant (0)                                 |
+| ACK delimiter                            |             1 | Must be recessive (1)                                                                                      |
+| End-of-frame (EOF)                       |             7 | Must be recessive (1)                                                                                      |
+
+
+Remote frame:
+
+Like a data frame but RTR is set to recessive and the data field is empty.
+
+*** Bus Control
+
+CAN has no central bus master.
+Instead the leading identifier determines the frames determine priority;
+the message with the highest priority gets bus access regardless of the sender.
+
+To avoid bus conflicts, CAN uses non-destructive bus arbitration.
+Each station is able to listen and transmit at the same time, however
+if the bus is in use by one station, others may not interrupt.
+As long as the bus is not in use, a station may try to send a frame at any time.
+If two or more frames try to send at almost the same time, they will simultaneously drive the bus and compare the bus level with the id of their own message.
+As soon as one station sees a dominant bit on the bus in the same position as a recessive bit in its id field, that station will back of and revert to listening on the bus.
+In the end there is exactly one station that will continue to send its message.
+This method can be contrasted with CSMA/CD, where a bus conflict forces ALL nodes to abort sending.  
+
+
+*** Synchronization and Bit coding
+
+In CAN, there is no dedicated bus clock.
+Instead CAN requires that all stations have the ability to compensate for different error sources such as clock period differences and phase drift.
+Synchronization occurs at the beginning of a frame at the first transition from dominant to recessive.
+Resynchronization then occurs at every recessive to dominant transition.
+
+CAN uses non-return to zero encoding.
+But to ensure that resynchronization occurs sufficiently often, bit stuffing is used.
+
+
+
+** CANopen
+
+*** TERMS
+
+- Node ID: Identies a specific node in the network, range 0-127
+- OD index + subindex: Idenditfies a specific variable in the OD.
+- SDO: service data object, one or more variables/constants in the OD used in the SDO-protocol of CAN-open
+- PDO: process data object, one or more variables/constants in the OD used in the PDO-protocol of CAN-open
+- COB ID/CAN ID: The message id used in CAN.
+  In CANopen this corresponds to one communcition channnel from one node to one or more other nodes.
+  Each SDO requires two COB IDS: client->server and server->client.
+
+*** OD
+
+Object Dictionary.
+
+The purpose of the Object Dictionary (OD) is to describe all data fields for a node that other nodes can interact with.
+As such, each node on the bus has its own OD.
+The OD is structured as a list of entries, and each entry is identified by a 16-bit index, and a 8-bit sub-index.
+
+The entries 0001h-0FFFh (4094) of the OD are used to define the data types a node supports.
+
+*** SDO
+
+Service data object.
+
+Allows for master/slave communication, where one node, the master, has one communication channel to every other node in the network.
+By default, only the master node is allowed to use these communication channels.
+On such a channel the master may issue read or write requests.
+The slave on the end of the channel must respond, in the case of a read request, or conform in the case of a write request.
+The slave *serves* the master, hence the name *Service* Data Object.
+
+Example usage of this feature include diagnostics, and configuration.
+
+SDO also allows fragmentation, this is called "segmented transfer"
+
+FORMAT:
+
+
+| SDO TYPE | CAN ID        | xxx | DATA0                                                | DATA1-DATA3                      | DATA4-DATA7  |
+|----------+---------------+-----+------------------------------------------------------+----------------------------------+--------------|
+| Request  | 600h + NODEID |     | Specifier: read/write/abort, segment?, blocktransfer | multiplexor: OD index + subindex | actual data? |
+|----------+---------------+-----+------------------------------------------------------+----------------------------------+--------------|
+| transmit | 580h + NODEID |     | Specifier: read/write/abort, segment?, blocktransfer | multiplexor: OD index + subindex | actual data  |
+|----------+---------------+-----+------------------------------------------------------+----------------------------------+--------------|
+| Fragment | 580h + NODEID |     | Specifier: read/write/abort, segment, blocktransfer  | actual data                      | actual data  |
+
+
+*** PDO
+
+Process Data Object.
+
+With PDOs OD entries can be grouped together to form messages, and these messages can be sent point-to-point between nodes.
+
+From the perspective of a single node there are two types of PDOs: transmit PDOs (TPDO)s and receive PDOs (RPDO)s.
+Each PDO used by a node (both TPDOs and RPDOs) have associated configuration parameters in its OD.
+For TPDOs these include TPDO communication parameters and PDO mapping parameters.
+For RPDOs these include RPDO communication parameters and PDO mapping parameters.
+
+**** TPDO communication parameters
+index 1800h - 19FFh
+| subindex | name      |
+|----------+-----------|
+|        0 | # entries |
+|----------+-----------|
+|        1 | COB ID    |
+|----------+-----------|
+|      etc |           |
+
+
+**** RPDO communication parameters
+index 1400h - 15FFh
+
+| subindex | name      |
+|----------+-----------|
+|        0 | # entries |
+|----------+-----------|
+|        1 | COB ID    |
+|----------+-----------|
+|      etc |           |
+
+**** PDO Mapping Paramters
+
+index 1600h-17FFh for RPDOs
+index 1A00h to 1BFFh for TPDOs
+
+The network may be configured such that any TPDO may captured by one or more other node(s).
+To link a PDO #n, from node a to node b, the COB id in the respective communication parameters must be set correctly.
+On node a, the COB ID at subindex 1 for TPDO at index 1800h+#n must be set the the same value as the COB ID at subindex 1 for RPDO at index 1400h+#n on node b.
+
+**** Pre-configured connection set
+
+By default the COB IDs are assigned in such a way that no linking exists.
+Thus only the NMT master will be able to send and receive PDOs.
+The collective name for all default values is the *pre-configured connection set*.
+For example:
+
+TPDO1 from node n is assigned 180h+n.  
+TPDO2 from node n is assigned 280h+n.  
+RPDO1 from node n is assigned 200h+n.  
+RPDO2 from node n is assigned 300h+n.
+
+These values are the same on all nodes.
+
+*** NMT
+
+Heart beat.
+
+Node guarding.
+
+
+** socketCAN
+https://elinux.org/CAN_Bus
+https://www.kernel.org/doc/Documentation/networking/can.txt
+
+SocketCAN is the official can interface of the linux kernel.
+The purpose is to provide a single user-level interface with
+"enough" high-level features, indepentent of the can hardware.
+Instead of writing a new hardware abstraction layer, like that
+of tty, sound, etc., parts of the network stack, including
+the user-facing api -- sockets -- are reused.
+
+  
+
+*** configure physical can interface
+
+This is done with the 'iproute2' suite, just like with other networking
+interfaces in linux.
+
+Activate device 'can0' with bitrate 500000 
+   
+   $ ip link set can0 up type can bitrate 500000
+
+Setting the bitrate correctly is important to avoid errors.
+Bit timing parameters are calculated automatically, but can also be set
+manually.
+
+- Display CAN device details and statistics:
+
+    $ ip -details -statistics link show can0
+    2: can0: <NOARP,UP,LOWER_UP,ECHO> mtu 16 qdisc pfifo_fast state UP qlen 10
+      link/can
+      can <TRIPLE-SAMPLING> state ERROR-ACTIVE restart-ms 100
+      bitrate 125000 sample_point 0.875
+      tq 125 prop-seg 6 phase-seg1 7 phase-seg2 2 sjw 1
+      sja1000: tseg1 1..16 tseg2 1..8 sjw 1..4 brp 1..64 brp-inc 1
+      clock 8000000
+      re-started bus-errors arbit-lost error-warn error-pass bus-off
+      41         17457      0          41         42         41
+      RX: bytes  packets  errors  dropped overrun mcast
+      140859     17608    17457   0       0       0
+      TX: bytes  packets  errors  dropped carrier collsns
+      861        112      0       41      0       0
+
+
+*** can-utils
+https://github.com/linux-can/can-utils
+
+reading from interface can0:
+
+  $ candump can0
+
+reading from interface can0 with filter 0x750 and mask 0xFFF:
+
+  $ candump can0,750:FFF
+
+Writing {0x11,0x22,0x33,...,0x88} with can-id 0x123 to interface can0:
+
+  $ cansend can0 123#11.22.33.44.55.66.77.88 
+
+* EMACS
+
+** CTAGS
+
+Run
+
+  ctags -e -R -F TAGS .
+
+in the projectdir. '-e' is to make tags file compatible with emacs.
+
+** TRAMP
+
+Emacs module for opening files and, in conjuction with certain modes, start processes on a remote target.
+
+To specify a remote file, TRAMP uses a special syntax: '/<protocol>:<host>:<path-to-file>'.
+
+** gdb
+
+On new versions must be run with:
+
+   M-x gdb -i=mi
+
+Can be used with TRAMP to debug remote programs
+specify the program to be debug using TRAMP path syntax:  '/<protocol>:<host>:<path-to-file>'.
+
+*** TROUBLESHOOTING
+
+TRAMP may not like the PS1 defined on the remote.
+A quickfix for this:
+
+  [[ $TERM == "dumb" ]] && PS1='$ ' && return
+
+* LINUX KERNEL DEVELOPMENT
+** Functions
+devm_kzalloc
+pci_set_drvdata
+pci_enable_device save configured irq of pci device to pdev
+
+
+pci_request_regions
+pci_iomap
+
+pci_set_master
+
+pci_request_irq
+
+iowrite32
+
+setup_timer
+
+le32_to_cpu endian conversion
+
+*** printk
+https://en.wikipedia.org/wiki/Printk
+
+printk(KERN_DEBUG "Debug message shown!\n");
+
+Different Loglevels, along with their numerical values, are shown here:
+0 	KERN_EMERG 	Emergency condition, system is probably dead
+1 	KERN_ALERT 	Some problem has occurred, immediate attention is needed
+2 	KERN_CRIT 	A critical condition
+3 	KERN_ERR 	An error has occurred
+4 	KERN_WARNING 	A warning
+5 	KERN_NOTICE 	Normal message to take note of
+6 	KERN_INFO 	Some information
+7 	KERN_DEBUG 	Debug information related to the program 
+
+Current loglevel:
+/proc/sys/kernel/printk
+(format: console level, default message level, minimum console level, default console level)
+
+printk() can be called from anywhere in the Kernel at any time. It can be called from interrupt
+or process context. It can be called while a lock is held.
+It can be called simultaneously on multiple processors,
+yet it does not require the caller to hold a lock. 
+
+View printk messages using: dmesg or /var/log/kern.log
+
+** KBUILD
+Kernel build system.
+A combination of text config files, makefiles, help programs, c defines.
+Enables conditional compilation.
+
+Configuration Symbols: variable that controls conditional compiation.
+There are two kinds of symbols:
+- Binary: true, false
+- Tristate: true, false, module
+
+
+*** Configuration Symbols
+Binary is used to enable/disable features that are intrisic to the kernel.
+Tristate is used for functions that can be disabled, built into the kernel,
+or built as an external module.
+
+*** Configuration Files
+Kconfig files are text files used to define configuration symbols.
+These are read by 'scripts/kconfig/menuconfig' a c program that provides a tui for
+setting the configuration symbols. The output is .config files
+that hold the chosen values for the configuration symbols.
+
+The prefix "CONFIG_" is added to all configuration symbols in the .config files.
+
+The .config files are read by 'scripts/kconfig/conf', which use symbols in
+the former to create corresponding c defines in the file
+'include/generated/autoconf.h'. This file is included automatically by kbuild
+for every translation unit compilation.
+
+kbuild has two variables that keep track of the object files to build:
+- obj-y, for objects to build into the kernel
+- obj-m, for objects to be built as modules.
+
+These are constructed based on the .config files and 'include/generated/autoconf.h'
+Thus enabling conditional selection of which source files to build.
+
+Conditional compilation inside the source file is enabled by using
+preprocessor directives, such as #ifdef, using the macros from
+'include/generated/autoconf.h'
+
+*** VARIABLES
+
+M=dir
+
+Build external module in directory 'dir'.
+
+
+* DRIVERS
+
+** SOLARIS
+
+The text in the following sections discusses device drivers.
+However Most of the information also applies to kernel modules,
+which are units of executable code that can be loaded into and subsequently executed by,
+the kernel.
+In fact, device drivers are a subset of kernel modules.
+
+*** RELEVANT MAN PAGES
+
+Driver/Kernel module information:
+- Section 9E, intro(9E) -- Entry points for drivers. DDI/DDK.
+- Section 9F, intro(9F) -- Kernel functions that may be called from drivers.
+- Section 9P            -- Reference pages for driver properties.
+- Section 9S, intro(9S) -- Reference pages for data structures.
+
+Kernel and System information:
+- kernel(1M)
+- system(4)
+- devfs(7FS)
+- boot(1M)
+
+System commands:
+- prtconf(1M)
+- prtpicl(1M)
+- devfsadmd(1M)
+- add_drv(1M)
+- update_drv(1M)
+- modload(1M)
+- modunload(1M)
+- modinfo(1M)
+
+*** DRIVER INTERFACE
+
+A driver can interact with:
+
+User Level
+
+Category method
+
+User applications system calls
+System commands user requests
+
+Kernel Level
+
+Category method
+
+Kernel boot code system initialization
+Bus driver eg. pci driver eg. bus reset
+Hardware controller interrupts
+
+*** FILESYSTEM INTERFACES
+
+devfs manages the filetree under /devices.
+This filetree shows the currently attached device instances.
+It is updated automatically as drivers are attached.
+Creation of files and directories under /devices is exclusively mangaed by devfs.
+
+The device tree which resides under /dev is also show information about devices.
+However this follows the UNIX standard,
+as opposed to devfs which is a Solaris specific standard.
+Many of the files under /dev are actually symlinks to files in /devices.
+
+*** DEVICE PROPERTIES
+A device property is a name value pair, related to a device.
+They may be used by the rest of the system to get information
+about devices (and interact with devices???).
+
+Use:
+
+  $ prtconf -v
+
+To view device properties.
+
+Drivers can use ddi_prop_* functions to manage device properties.
+
+*** DEVICE NUMBERS
+
+A device number is a pair of numbers, namely a major number AND a minor number.
+This pair uniquely identifies a driver and a device instance.
+
+The major number is unique for every driver,
+and this number isautomatically assigned when a driver is installed.
+The current major numbers can be read from /etc/name_to_major.
+
+The minor number is assigned in the driver.
+
+*** MULTITHREADING
+
+**** Storage
+
+- Kernel Thread local storage (automatic), only used by a single thread.
+- Global Static, may be used by threads in the driver.
+- Kernel heap, may be used by threads in the kernel (and threads outside of the driver?). 
+
+**** Mutexes
+
+**** Semaphores
+
+**** Read/write locks
+Mostly N/A for drivers.
+
+**** Condition Variables
+
+*** Task Queues
+A mechanism for deffering work to a more conveanient time.
+
+A task lists is a FIFO queue with functions to execute.
+Each task list may have a number of threads that can execute functions in it.
+
+A driver may, among other things, create, destroy, and queue tasts to tasklists.
+
+*** CHARACTER DEVICE FILES
+
+*** BLOCK DEVICE FILES
+
+*** INSTALLING DRIVERS
+
+Use add_drv
+
+If there already exists a driver with the same device binding,
+the new driver will not attach correctly unless the computer is restarted.
+
+However an existing driver can be replaced with a newer version.
+This is can be done by unloading the old driver and loading the new driver manually.
+For this to work the name of the driver (and maybe some variables???) must not differ.
+The reason this works, is because the new driver is not INSTALLED;
+the executable for the driver is merely replaced.
+
+*** MANIPULATING DRIVERS
+
+*** IDENTIFYING DRIVERS
+
+use
+
+  prtconf -D <devicefile>
+
+where <devicefile> is a file from devfs, to see which driver manages the corresponding device.
+
+*** MISC
+
+**** DDI_INTR_ALLOC_STRICT
+Causes error when used on solaris 10 x86 as argument to
+ddi_intr_alloc.
+  
+*** DEBUGGING
+**** savecore bad magic number
+
+
+Applies to:
+Solaris Operating System - Version 10 6/06 U2 to 10 1/13 U11 [Release 10.0]
+Solaris Operating System - Version 11.1 to 11.2 [Release 11.0]
+Information in this document applies to any platform.
+Symptoms
+
+If the issue described in this document is encountered, executing savecore may return a message similar to the following
+
+# savecore -vd -D .
+savecore: bad magic number cccccccc, savecore: Failed to read valid dump header from dump file /dev/zvol/dsk/rpool/dump
+Changes
+
+Re-sizing /dev/zvol/dsk/rpool/dump using 'zfs set volsize=newsize rpool/dump'
+Cause
+
+Due to Bug 17190470, this issue can occur in the following releases:
+
+SPARC Platform:
+
+    Solaris 10 without patch 150400-20
+    Solaris 11.2 without SRU 8.4
+
+
+x86 Platform:
+
+    Solaris 10 without patch 150401-20
+    Solaris 11.2 without SRU 8.4
+
+ 
+Solution
+
+This issue is addressed in the following releases:
+
+SPARC Platform
+
+    Solaris 10 with patch 150400-20 or later
+    Solaris 11.2 with SRU 8.4 or later
+
+
+x86 Platform
+
+    Solaris 10 with patch 150401-20 or later
+    Solaris 11.2 with SRU 8.4 or later
+
+
+If the patch or SRU can not be applied right away you can workaround the issue by running 'zfs set volsize=newsize rpool/dump' twice.  The run the savecore command.  eg:
+
+ 
+# zfs set volsize=10g rpool/dump
+# zfs set volsize=10g rpool/dump
+
+**** Postmortem Debugging
+
+     # savecore
+     
+     # savecore -vf  <path-to-core>
+
+# savecore -vd -D .
+
+     # cd <path-to-decompressed-core>
+     
+     # ls
+bounds unix.0vmcore.0
+
+# mdb 0
+
+> ::status debugging crash dump vmcore.0 (64-bit)from unknown
+.
+.
+.
+
+***** Backtrace
+For current thread (at time of crash)
+      > $c
+For other threads
+
+    > <stack-address>$c
+
+or
+
+    > <thread_address>::findstack
+
+Dissaseble instruction at <function_name>+<offset> and <n>
+before and after lines
+    > <function_name>+<offset>::dis -n <n>
+
+** Linux
+
+*** kmod
+
+A set of tools to load, unload, ..etc linux kernel drivers
+The tools include:
+kmod
+lsmod
+depmod
+insmod
+lsmod
+modinfo
+modprobe
+rmmod
+
+*** kABI
+http://blog.fpmurphy.com/2011/07/centos-5-6-ar8131-nic-driver.html?output=pdf&l=lv
+https://wiki.centos.org/HowTos/BuildingKernelModules#head-b86b6eec08d5719cf1838929f26a64af88e2b7f0
+https://www.elrepo.org/tiki/FAQ
+
+Kernel Application Binary Interface. The ABI used by the kernel.
+Device drivers must be compatible with the kABI used by a kernel to work.
+There is no official stable ABI for linux. As such, for official support,
+device drivers must be compiled for each kernel version it is to be used with.
+
+*** kABI tracking
+However redhat and centos have whitelists and blacklist for specific symbols used in
+(their) specific kernel versions.
+These can be used to determine compatibility between kernel modules and kernel versions.
+
+*** udev
+udevd
+
+/etc/udev/rules.d
+
+*** MISC
+modules-load.d -- Configure kernel modules to load at boot
+
+* PCI
+
+Peripheral Component Interface (PCI),
+is a network standard for connecting external devices to the cpu.
+
+This network may contain at most 256 buses, each having at most 32 devices,
+with each device having at most 8 functions.
+In practice, the amount of devices per bus is typically lower than 32,
+due to limitations in the physical protocol.
+
+There are two classes of devices in PCI:
+
+1. Bridge, a device that connects PCI-buses.
+2. non-Bridge.
+
+** BUS ACCESS
+
+PCI buses allow for multiple masters.
+In fact, the standard allows multiple functions on the same device to be bus masters.
+Bus contention is resolved by a bus arbiter.
+Each device has a pair of wires #REQ and #GNT connected to the bus arbiter.
+The former is used to request bus access,
+and the latter, asserted by the bus arbiter,
+signals that the corresponding device is granted access.
+The standard states that the bus arbiter must use a fair bus scheduling algorithm.
+
+** TRANSACTION MODELS
+
+There are three types of transaction models in PCI.
+
+The first is programmed I/O.
+If data is to be transferred from a device to primary memory in this model,
+the cpu must in turn request each word from a device,
+copy each word from the pci network to a register,
+and then write each word to memory.
+The same method, but in reverse, is used to transfer data from primary memory to a device.
+
+The second is direct memory access (DMA).
+In this model, a device may have a programmable controller, called a DMA engine,
+that is capabable of sending sequences of data over the pci-network.
+In this model, the cpu can program a device to send a specified amount of data,
+to a specified address in primary memory.
+When all data has been transfered, the device can notify the cpu with an interrupt.
+
+The third model is peer-to-peer, where two devices can communicate directly over the pci network,
+without oversight from the cpu.
+
+** PCI MEMORY MAP
+
+On x86 platforms, memory-mapped I/O is used to interface with PCI.
+To conserve memory addresses,
+PCI uses a dataport and an address port to read and write to a PCI device.
+The CPU first writes to the address port, targeting a bus, device and function number and a word offset.
+The CPU then reads or writes the data to the dataport to initiate the actual transaction.
+
+** Physical Protocol
+
+Buses are parallell.
+Reflected Wave signaling.
+
+* PCI-X
+
+Introduces several improvements, but still suffer from limitations inherent in parallel buses.
+
+
+* PCI Express
+
+** Protocol
+
+Layered
+
+Packet-based
+
+Split-transaction model
+
+posted
+
+non-posted
+
+** DMA
+
+Multiple Masters: Devices can initiate transactions.
+For memory accesses transactions initiated by a device, it can be
+said that the device has a DMA engine.
+
+To support memory accesses initiated by a device, the computer system
+may employ an I/O Memory Management Unit (IOMMU). In such cases,
+the device will use "Bus addresses", while a program running on the
+processor might use other types of addresses such as virtual addresses
+to point out the same memory. This must be considered when using
+DMA buffers accessed by both a device and driver.
+
+
+** Layers
+
+*** Transaction Layer
+
+Message types
+
+virtual channels
+
+*** Data Link layer 
+
+ack/nak
+
+*** Physical Layer
+
+PCIe has a completely different physical layer compared to PCI.
+An important difference is that PCIe has serial, point-to-point connections instead of parallell buses.
+This is because the latter places higher constraints on connection transfer speeds compared to the former.
+
+A connection between PCIe devices is called a link.
+Each link may constist of multiple lanes;
+the standard allows for 1, 2, 4, 16 or 32 lanes per link designated as:
+1x, 2x, 4x, 16x, or 32x.
+Each link is a dual-simplex, or full-duplex connection,
+which means that data can be sent both ways simultaneously.
+
+The links use differenctial signaling in both directions.
+This means that every link has four wires: two in both directions.
+
+There is no common "bus" clock in PCIe, unlike PCI.
+Instead, each link is clocked separately.
+This is done by embedding clock information in the datastream on the sending side,
+and recovering it on the receiver side.
+To acheive this 8b/10b (PCIe gen 1, 2) or 128/130b (PCE gen 3) encoding,
+in combination with phased locked loops (PLLS) are used.
+
+** PCIe configuration space
+In most cases, a processor can not directly send PCIe transactions
+to request configuration space data. This is done by the root complex
+on behalf of the processor.
+
+A processor initiates the transfers, through memory mapped I/O.
+However the memory mapping is direct, unlike in PCI where data ports are used;
+for each PCIe function, 4KiB of configuration space memory is mapped into
+the processors memory. This is done by configuration software (read BIOS).
+
+** Base Address Registers
+   
+* Storage Solaris
+** Misc
+
+Identify and format disks.
+
+   $ format
+
+* ZFS
+
+3 important abstractions:
+
+- vdev: Virtual device, abstracted hardware storage device.
+- pool: Storage area, is linked to a number of vdevs.
+- dataset: Structured data within a pool, eg. filesystem.
+
+** zpool
+
+Manage pools
+
+*** find pools
+
+    $ zpool import
+
+*** import a pool
+
+    $ zpool import <pool>
+
+*** export pool
+
+Exports the pool from the system.
+Makes it possible to import into another system.
+
+    $ zpool export <pool>
+
+** zfs
+
+Manage datasets.
+
+*** list all datasets
+
+    $ zfs list
+
+*** Mount an unmounted dataset to a temporary location
+
+Only works when filesystem configured as non-legacy.
+
+    $ zfs mount -o mountpoint=<tmp-mountpoint> <filesystem>
+
+*** unmount
+
+    $ zfs umount
+
+
+
+
+* RPM
+
+* Gnu Global
+
+First, create tag file with gtags. Example:
+
+    $ find . -type f -print >/tmp/list     # make a file set
+    $ vi /tmp/list                         # customize the file set
+    $ gtags -f /tmp/list
+
+Second, use global to search for definitions and references.
+* Dtrace
+
+** display probes
+
+   # dtrace -l
+
+** time a function
+
+This example shows how to time a syscall.
+
+  # dtrace -n 'syscall::write:entry { self->s = timestamp; } \
+               syscall::write:return /self->s/ { @["ns"] = quantize(timestamp - self->s); self->s = 0; }'
+
+
 * Ftrace
 
 Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
