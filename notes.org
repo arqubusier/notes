@@ -276,3 +276,20 @@ On endpoint 0 => all devices must listen.
 **** Isochronous Transfers
 
 *** Chapter 5
+* Ftrace
+
+Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
+
+Or use trace-cmd
+
+** Get a list of traceable functions
+
+  # trace-cmd list -f
+
+** Time a specific function
+
+  # trace-cmd record -p function_graph -l <function-name>
+
+The trace will be saved in 'trace.dat'. Display it with
+
+  # trace-cmd record trace.dat
