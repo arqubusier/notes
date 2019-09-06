@@ -1265,3 +1265,6 @@ Or use trace-cmd
 The trace will be saved in 'trace.dat'. Display it with
 
   # trace-cmd record trace.dat
+* X
+** Keyboard
+$ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
