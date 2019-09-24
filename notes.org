@@ -277,7 +277,7 @@ On endpoint 0 => all devices must listen.
 
 *** Chapter 5
 
-* OSI Network
+* Network
 
 ** MTU
 MTU Stands for Maximum Transport Unit.
@@ -328,6 +328,11 @@ Also, when calling 'sendto' the destination address must be set to NULL.
 The error detection features of UDP include a checksum that can detect errors in the payload.
 
 
+** OS API
+*** Posix Sockets
+*** TAPS
+https://tools.ietf.org/pdf/draft-ietf-taps-arch-04.pdf
+
 ** System Tools
 
 *** List Network Interfaces
@@ -359,6 +364,7 @@ Linux:
 3. Is the port blocked by a firewall
 Check with tcpdump.
 
+**
 * CAN - Controller Area Network
 
 Network standard for physical and data-link layer
@@ -1268,3 +1274,41 @@ The trace will be saved in 'trace.dat'. Display it with
 * X
 ** Keyboard
 $ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
+* Licenses
+** Apache 2.0
+
+There does not appear to be any requirment that a licensee make the the source of a derivative work be made available.
+There is no requirement that derivative works be licensed under the same license: "license to ... sublicense"
+from the chapter "Grant of Copyright License".
+*** Grant of Patent License
+
+I interpret this as: if a contributor makes a contribution that falls under a patent that the contributor owns,
+then a licensee of the work gets a license to make, have made, use, offer to sell, sell, import, and otherwise transfer the WORK.
+i.e. the patent license is limited to the work.
+
+** Mozilla Public License 2.0
+
+Requires that the licensee make the source code form of the covered software be made available.
+
+May be distributed as a larger work, provided that covered software has the same license.
+"Larger work" is work that combines covered software with other material, in *separate* files.
+
+May be distributed under a different license if compatible.
+* Build Systems
+** Meson
+https://www.youtube.com/watch?v=SCZLnopmYBM
+
+Declarative: descrive *what* you want not *how*.
+
+Supported IDEs:
+- gnomebuilder
+- eclipse
+
+written in Python
+
+Built-in support for:
+- parallel unit tests
+- coverege report
+- different build targets
+
+Rebuild shared libraries without relinking
