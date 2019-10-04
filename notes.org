@@ -1312,3 +1312,10 @@ Built-in support for:
 - different build targets
 
 Rebuild shared libraries without relinking
+* Compilers
+** GCC
+*** Show defined macros
+$ gcc -xc -E -dM - </dev/null
+$ gcc -xc++ -E -dM - </dev/null
+för C respektive C++.
+
