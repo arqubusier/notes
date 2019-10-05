@@ -59,9 +59,16 @@ use 'calibre' with DeDRM plugin to remove drm.
 
 ** USB
 
+*** HID
+
+Note: For keyboards, look at the usage table sections in both the HID Specification and the HID Usage Table document!
+
+https://www.usb.org/sites/default/files/documents/hid1_11.pdf
+https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+*** Sniffing
+
 https://www.totalphase.com/support/articles/200349256-USB-Background
 
-*** Sniffing
 
 Can be done with wireshark
 https://wiki.wireshark.org/USB
@@ -72,6 +79,17 @@ the (linux) kernel is displayed.
 USB Request Block (URB) https://www.kernel.org/doc/html/v4.15/driver-api/usb/URB.html
 
 The setup structure follows the USB specification for the setup header and thus is in little endian byte order. The USB data is present only in one of two events associated with an URB. If the transfer direction is from the host to the device, the data is present in the 'submit' event, otherwise the data is present in the 'completion' event. The amount of data effectively present into the event can be less than the amount of data effectively exchanged.
+
+*** Descriptors
+
+can be viewed with
+
+    $ lsusb -v
+
+or
+    # lsusb -v
+
+in linux.
 
 
 
@@ -273,7 +291,49 @@ On endpoint 0 => all devices must listen.
 **** Interuppt Transfers
 
 **** Bulk Transfers
-
+     
 **** Isochronous Transfers
 
 *** Chapter 5
+* mc-kort
+** säkerhetskontroll
+*** TODO kolla vilken mc jag får låna till uppkörning och hitta manual till denna
+*** TODO skriv checklista utan anvisningar
+* emacs
+** config
+
+*** reload init.el
+
+    M-x load-file RET init.el
+
+** packages
+*** package menu
+enter using 
+
+   M-x list-packages
+
+- i mark package for install
+- d delete
+- x download and install marked packages and their dependencies.
+- q exit
+
+** completion
+*** company
+uses plugable backends
+
+gtags
+
+
+*** cedet
+semantic completion
+
+
+*** helm-gtags
+**** config
+
+(require 'setup-helm-gtags)
+(require 'setup-helm)
+** helm
+
+http://tuhdo.github.io/helm-intro.html
+
