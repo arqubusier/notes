@@ -330,6 +330,14 @@ The error detection features of UDP include a checksum that can detect errors in
 
 ** OS API
 *** Posix Sockets
+**** TCP Address already in use
+
+If the local end initiates close, the kernel may keep the
+socket  while waiting for timeout in the 'TIME_WAIT' tcp state
+
+https://hea-www.harvard.edu/~fine/Tech/addrinuse.html
+
+
 *** TAPS
 https://tools.ietf.org/pdf/draft-ietf-taps-arch-04.pdf
 
@@ -364,7 +372,7 @@ Linux:
 3. Is the port blocked by a firewall
 Check with tcpdump.
 
-**
+
 * CAN - Controller Area Network
 
 Network standard for physical and data-link layer
@@ -1327,3 +1335,63 @@ $ gcc -xc -E -dM - </dev/null
 $ gcc -xc++ -E -dM - </dev/null
 för C respektive C++.
 
+
+* QT
+** Layouts
+*** Set Layout in central widget of layout.
+Special case. Do this:
+
+  QWidget *widget = new QWidget();
+  widget->setLayout(VBoxLayout);
+  setCentralWidget(widget);
+
+** QT Designer
+Graphical design -> ui description file (xml) -> generated source code
+
+*** Layouts
+A bit finicky.
+
+A widget cannot be move to another layout if its already in one.
+This causes problems.
+*** Splitters
+How to rearrange objects within these?
+*** Custom Widgets
+Use placeholders + promotion, or plugins.
+Don't know how this works, might be easier to use hand coding instead.
+* C++
+** delete constructor
+
+https://stackoverflow.com/questions/14085620/why-do-c11-deleted-functions-participate-in-overload-resolution
+
+the purpose of 'myConstructor(args...)= delete' is to say
+*forbid* use of this constructor. It does *not* mean remove
+this constructor.
+
+So the deleted constructor will be part of the overload resolution
+in order for the compiler to detect if the deleted constructor is
+wrongly used. 
+
+** overload resolution
+
+
+https://stackoverflow.com/questions/25862821/how-does-overload-resolution-work-in-the-context-of-private-modifier
+
+access specifiers are checked last by the compiler.
+This means that a function call may be ambiguous even though only one function is public.
+
+* General Programming Tips
+** Endian conversion to/from a know format 
+Utilize the fact that the left shift, shifts towards most significant bit,
+and right shift shifts towards least significant bit (this applies to multiple languages).
+
+Example:
+
+destination is LE
+  uint16 source_val = 0x1234;
+  dest_buf[0] = 0xFF & source_val;
+  dest_buf[1] = 0xFF & (source_val >> 8);
+
+Works for both BE and LE host.
+
+
+   
