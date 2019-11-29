@@ -1389,6 +1389,7 @@ Built-in support for:
 Rebuild shared libraries without relinking
 * Compilers
 ** GCC
+https://gcc.gnu.org/onlinedocs/gccint.pdf
 *** Show defined macros
 $ gcc -xc -E -dM - </dev/null
 $ gcc -xc++ -E -dM - </dev/null
@@ -1438,6 +1439,85 @@ https://stackoverflow.com/questions/25862821/how-does-overload-resolution-work-i
 access specifiers are checked last by the compiler.
 This means that a function call may be ambiguous even though only one function is public.
 
+* POSIX Shell
+http://www.etalabs.net/sh_tricks.html
+
+** Pass on arguments to script
+
+Use "$@", NOT $*, NOT $@ etc..
+See the following example:
+
+# cat ./test.sh
+#!/usr/bin/env bash
+echo "================================="
+
+echo "Quoted DOLLAR-AT"
+for ARG in "$@"; do
+    echo $ARG
+done
+
+echo "================================="
+
+echo "NOT Quoted DOLLAR-AT"
+for ARG in $@; do
+    echo $ARG
+done
+
+echo "================================="
+
+echo "Quoted DOLLAR-STAR"
+for ARG in "$*"; do
+    echo $ARG
+done
+
+echo "================================="
+
+echo "NOT Quoted DOLLAR-STAR"
+for ARG in $*; do
+    echo $ARG
+done
+
+echo "================================="
+Now, run the test script with various arguments:
+# ./test.sh  "arg with space one" "arg2" arg3
+=================================
+Quoted DOLLAR-AT
+arg with space one
+arg2
+arg3
+=================================
+NOT Quoted DOLLAR-AT
+arg
+with
+space
+one
+arg2
+arg3
+=================================
+Quoted DOLLAR-STAR
+arg with space one arg2 arg3
+=================================
+NOT Quoted DOLLAR-STAR
+arg
+with
+space
+one
+arg2
+arg3
+=================================
+
+** Get path to executed script
+    dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+DOES NOT WORK IF SCRIPT WAS CALLED VIA SYMLINK.
+If readlink is available use this:
+
+    spath=`readlink -f "$0"`
+    sdir=`dirname -- "$spath"`
+
+
+** Difference between $@ and $*
+
 * General Programming Tips
 ** Endian conversion to/from a know format 
 Utilize the fact that the left shift, shifts towards most significant bit,
@@ -1454,3 +1534,131 @@ Works for both BE and LE host.
 
 
    
+* Interesting Tools
+** organice
+** sourcetrail
+https://www.sourcetrail.com/blog/open_source/
+** gdbgui
+https://www.gdbgui.com/
+
+* Courses
+
+** eth zurich computer architecture fall 2019
+https://safari.ethz.ch/architecture/fall2019/doku.php?id=schedule
+
+* Reverse Engineering
+https://beginners.re/RE4B-EN.pdf
+
+
+* Containers
+** Systemd-nspawn
+*** Systemd-Nspawn is Chroot on Steroids 
+https://www.youtube.com/watch?time_continue=501&v=s7LlUs5D9p4&feature=emb_logo
+
+**** For building, testing, profiling.
+Not For shipping.
+Therefore, not a competitor with docker, lxc, etc.; it lacks features that these have.
+Originally made for testing systemd.
+
+**** Creating linux nspawn containers:
+1. use package manager to install base distro packages to a specific directory
+   -eg yum, for fedora, debboostrap for ubuntu/debian.
+2. run systemd-nspawn using the packages you just downloaded. 
+
+
+**** Machinectl - Machined
+dbus service that monitors nspawn, lxc, etc. and passes on info to ps and other tools
+
+**** Journalctl -m
+used to view containers
+
+** Containers with systemd - Lennart Poettering
+https://www.youtube.com/watch?v=d4SwL2t5Yh4
+*** Guest OS similar to Host OS
+Stricter requirement compared to docker.
+*** "integrated isolation"
+*** Minimal
+Sacrifice features in favour of simplicity.
+
+
+* Keyboards
+
+** Leopold FC660M
+
+DIP Switch
+Key/Function
+SW OFF
+SW ON
+SW1
+Ctrl (left)
+Ctrl (left)
+Caps Lock
+SW1
+Caps Lock
+Caps Lock
+Ctrl (left)
+SW2
+Windows
+Windows
+Alt (left)
+SW2
+Alt (left)
+Alt (left)
+Windows
+SW3
+Windows
+Windows
+Fn
+SW3
+Fn
+Fn
+Windows
+SW4
+Windows
+Enabled
+Disabled
+FN Layer
+
+Key Combination
+Function
+Fn + Q
+Toggle default action for Esc key
+between Esc and Backtick
+Toggle Insert LED On/Off
+to indicate state this change
+Fn + Number Row
+F1-F12
+Fn + Arrow Up
+Page Up
+Fn + Arrow Down
+Page Down
+Fn + Arrow Left
+Home
+Fn + Arrow Right
+End
+Fn + Ctrl (right)
+Menu
+Fn + I
+Print Screen/System Request
+Fn + O
+Scroll Lock
+Fn + P
+Pause/Break
+Fn + K
+Home
+Fn + L
+Page Up
+Fn + <
+End
+Fn + >
+Page Down
+Shift + Esc
+~
+Fn + Esc
+* Programs
+** Burning
+*** K3B
+** Other
+*** Sweet Home 3D
+http://www.sweethome3d.com/
+
