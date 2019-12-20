@@ -52,20 +52,26 @@ Additional Comments
 
 use 'calibre' with DeDRM plugin to remove drm.
 
-* usb
+* mc-kort
+** säkerhetskontroll
+*** TODO kolla vilken mc jag får låna till uppkörning och hitta manual till denna
+*** TODO skriv checklista utan anvisningar
 
-** Embedded libraries
+* Communication Technologies
+** usb
+
+*** Embedded libraries
 - HID: http://www.signal11.us/oss/hidapi/
 
-** USB
+*** USB
 
-*** HID
+**** HID
 
 Note: For keyboards, look at the usage table sections in both the HID Specification and the HID Usage Table document!
 
 https://www.usb.org/sites/default/files/documents/hid1_11.pdf
 https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
-*** Sniffing
+**** Sniffing
 
 https://www.totalphase.com/support/articles/200349256-USB-Background
 
@@ -80,7 +86,7 @@ USB Request Block (URB) https://www.kernel.org/doc/html/v4.15/driver-api/usb/URB
 
 The setup structure follows the USB specification for the setup header and thus is in little endian byte order. The USB data is present only in one of two events associated with an URB. If the transfer direction is from the host to the device, the data is present in the 'submit' event, otherwise the data is present in the 'completion' event. The amount of data effectively present into the event can be less than the amount of data effectively exchanged.
 
-*** Descriptors
+**** Descriptors
 
 can be viewed with
 
@@ -93,12 +99,12 @@ in linux.
 
 
 
-** USB IN A NUTSHELL
+*** USB IN A NUTSHELL
 
 Taken from this excellent write-up at https://www.beyondlogic.org/usbnutshell/usb1.shtml.
 
 
-*** Chapter 1
+**** Chapter 1
 
 Brief overview off all chapters in the usb-standard and what you *really* need to read.
 In short, the most important, and useful chapters of the usb-standard when designing peripheral devices are chapters (in addition to the material in the discussed guide):
@@ -111,33 +117,33 @@ In short, the most important, and useful chapters of the usb-standard when desig
 - 9, USB Device Frame Work (the most useful chapter, read in detail)
 
 
-**** Topolgy
+***** Topolgy
 - One master -- called *host* in usb -- per network -- called *bus* in usb.
 - OTG (On-The-Go), multiple entities on a single link can negotiate over who will be the host (eg. for mobile phone)
 - 127 devices per bus.
 - tiered star topology, use hubs to extend network
 
-**** Data Link and Physical
+***** Data Link and Physical
 - Serial bus
 - 4 wires: +5V, GND, D+, D-
 - D+ and D-, differential signaling pair
 - NRZI (non-Return to zero) encoding
 - synch field to synchronize host and reciever
  
-**** Plug And Play
+***** Plug And Play
 - hotplug
 - host loads and unloads driver automatically
 - PID/VID, Product ID, Vendor ID, used by host to determine correct driver.
 - Pay USB Implementor's form to get PID and VID
 - or search for existing suitable PID/VID for non-commercial projects.
 
-**** Transfer modes
+***** Transfer modes
 - Control
 - Interrupt
 - Bulk
 - Isochronous, reserve bandwidth (eg. audio, video aplication)
 
-*** Chapter 2
+**** Chapter 2
 
 USB uses standard colors for the wires.
 | Pin Number | 	Cable Colour | Function  |
@@ -148,34 +154,34 @@ USB uses standard colors for the wires.
 |          4 | black                | ground    |
 |------------+----------------------+-----------|
 
-**** Connectors
-***** USB 1.0
+***** Connectors
+****** USB 1.0
 #+CAPTION: Type A Connector
 [[./images/usb/contypea.gif]]
 
 #+CAPTION: Type B Connector
 [[./images/usb/contypeb.gif]]
 
-***** USB 2.0
+****** USB 2.0
 - mini b
 - mini a male
 - mini a female
 - mini ab
 
-***** USB 2.0 revised
+****** USB 2.0 revised
 - micro b
 - micro a
 - micro ab
 
-***** USB 3.0
+****** USB 3.0
 - a SuperSpeed
 - b SuperSpeed
 - micro b superspeed
 
-***** USB 3.1 and USB 3.2
+****** USB 3.1 and USB 3.2
 - type a
 
-**** Physical
+***** Physical
 
 The transmitter signals according to the following tables.
 
@@ -200,7 +206,7 @@ Reciever
 
 characteristic impedance of 90 ohms +/- 15%
 
-**** Speed identification
+***** Speed identification
 
 A usb device annouces its prescence and speed on the bus by pulling either D+ or D- to 3.3v.
 - Full Speed: d+ is pulled to 3.3v by the device.
@@ -209,7 +215,7 @@ The pull-ups can be implemented in silicon, for instance in usb-transcievers.
 
 Highspeed mode: more complicated...
 
-**** Power
+***** Power
 
 - 1 unit load = 100mA.
 - Low-power bus functions: <= 1 unit load; 4.4v <= Vbus <= 5.25
@@ -218,7 +224,7 @@ Highspeed mode: more complicated...
 
 decoupling capacitance must be between 1uF and 10uF.
 
-**** Suspend mode
+***** Suspend mode
 - All devices must support this mode
 - Entered when there is no activity for > 3.0ms
 - After suspend triggered, the device must be fully suspended within 7.0ms
@@ -228,13 +234,13 @@ decoupling capacitance must be between 1uF and 10uF.
 - Global Suspend
 - Selected Suspend
  
-**** Data Signalling Rate 
+***** Data Signalling Rate 
 - High speed data is clocked at 480.00Mb/s with a data signalling tolerance of ± 500ppm.
 - Full speed data is clocked at 12.000Mb/s with a data signalling tolerance of ±0.25% or 2,500ppm.
 - Low speed data is clocked at 1.50Mb/s with a data signalling tolerance of ±1.5% or 15,000ppm.
 
 
-*** Chapter 3
+**** Chapter 3
 
 Data is sent as packets, LSBit first.
 Traffic is host driven => no collision handling needed.
@@ -250,12 +256,12 @@ each having mulitple sub-types.
 The last field is always:
 - EOP, end of packet, Single Ended Zero (SE0) 2 bits, then j 1 bit
 
-****  Token Packet
+*****  Token Packet
 - In, host wants to read
 - Out, host wants to write
 - Setup, initiate control transfer
 - SOF, Start of Frame, keep-alive
-**** Data packet
+***** Data packet
 - Data0
 - Data1
 
@@ -266,12 +272,12 @@ Data field sizes may be at most:
 
 Data must be in multiples of 1 byte.
 
-**** Handshake
+***** Handshake
 - ACK
 - NAK
 - STALL
 
-**** USB Functions
+***** USB Functions
 1 usb device address corresponds to 1-??? usb functions/configurations.
 
 1 usb functions/configurations may have 1-?? endpoints, all usb device must support endpoint 0.
@@ -280,47 +286,43 @@ Pipes defines how an enpoint is used by the host and the device. The two types o
 - Stream pipe; uni-directional (in or out); bulk, isochronous, interrupt; application defined format, 
 - Message pipe; omni-directional, but Host controlled; format defined by USB,
   
-*** Chapter 4
+**** Chapter 4
 
 4 types of endpoints/transfer types
 
-**** Control Transfers
+***** Control Transfers
 On endpoint 0 => all devices must listen.
 
 
-**** Interuppt Transfers
+***** Interuppt Transfers
 
-**** Bulk Transfers
-     
-**** Isochronous Transfers
+***** Bulk Transfers
+      
+***** Isochronous Transfers
 
-*** Chapter 5
-* mc-kort
-** säkerhetskontroll
-*** TODO kolla vilken mc jag får låna till uppkörning och hitta manual till denna
-*** TODO skriv checklista utan anvisningar
-* Network
+**** Chapter 5
+** Network
 
-** MTU
+*** MTU
 MTU Stands for Maximum Transport Unit.
 It is the largest allowed size of a protocol data unit (PDU) at layer 3 that can be communicated in a single network layer transaction for a particular link.
 
-** Path MTU
+*** Path MTU
 The smallest MTU in a path between to hosts.
   
 
-** Physical
+*** Physical
 
-** Data Link
+*** Data Link
 
-** Network
-*** IPv4
+*** Network
+**** IPv4
 
-*** IPv6
+**** IPv6
 Fragmentation may only be performed by the source node.
 It is therefore strongly recomended to use MTU-discovery to establish the path MTU to avoid packet drop due to too large packets.
-** Transport
-*** TCP
+*** Transport
+**** TCP
 Complex, Connection-oriented and reliable. Uses handshakes to establish connections and for confirming that messages have arrived.
 
 Reliable Byte Stream protocol: bytes arrive in the same order as sent.
@@ -328,13 +330,13 @@ for a single transmission: loop read()/recv() may return less th 0;
 
 FAQ 
 
-*** UDP
+**** UDP
 Simple, connectionless and unreliable.
 
-**** Unconnected Socket
+***** Unconnected Socket
 'sendto' and 'recvfrom' must be used on an unconnected socket due to the need of specifying the address of the destination.
 
-**** Connected Socket
+***** Connected Socket
 
      int connect(int sockfd, const struct sockaddr *addr,
                    socklen_t addrlen)
@@ -350,9 +352,9 @@ Also, when calling 'sendto' the destination address must be set to NULL.
 The error detection features of UDP include a checksum that can detect errors in the payload.
 
 
-** OS API
-*** Posix Sockets
-**** TCP Address already in use
+*** OS API
+**** Posix Sockets
+***** TCP Address already in use
 
 If the local end initiates close, the kernel may keep the
 socket  while waiting for timeout in the 'TIME_WAIT' tcp state
@@ -360,25 +362,25 @@ socket  while waiting for timeout in the 'TIME_WAIT' tcp state
 https://hea-www.harvard.edu/~fine/Tech/addrinuse.html
 
 
-*** TAPS
+**** TAPS
 https://tools.ietf.org/pdf/draft-ietf-taps-arch-04.pdf
 
-** System Tools
+*** System Tools
 
-*** List Network Interfaces
+**** List Network Interfaces
 
 - ifconfig (linux, solaris)
 - ipadm (solaris)
 - ip (linux, solaris)
 
-*** Inspect Packets
+**** Inspect Packets
 - snoop (solaris)
 - wireshark (linux, solaris)
 
 
-** Troubleshooting
+*** Troubleshooting
 
-*** connect: Connection Refused
+**** connect: Connection Refused
 
 1. Who is the server, who is the client?
 2. Are there any sockets for wich a server is listening on the expected port and address?
@@ -395,7 +397,7 @@ Linux:
 Check with tcpdump.
 
 
-* CAN - Controller Area Network
+** CAN - Controller Area Network
 
 Network standard for physical and data-link layer
 
@@ -404,7 +406,7 @@ Standards for the physical layer:
 Standards for the data-link layer:
 
 
-** Physical
+*** Physical
 
 CAN is a serial, differential voltage, two wire bus protocol.
 The two wires are called CAN-low and CAN-high.
@@ -419,7 +421,7 @@ The terms are so named because if one or more stations drives CAN-low to 0 while
 then the wire will have the logical 0.
 Thus the dominant bit 'dominates' over the recessive bits.
 
-*** Frame Formats
+**** Frame Formats
 
 Message frames are sent serially, one bit at a time by controlling CAN-LO
 
@@ -466,7 +468,7 @@ Remote frame:
 
 Like a data frame but RTR is set to recessive and the data field is empty.
 
-*** Bus Control
+**** Bus Control
 
 CAN has no central bus master.
 Instead the leading identifier determines the frames determine priority;
@@ -482,7 +484,7 @@ In the end there is exactly one station that will continue to send its message.
 This method can be contrasted with CSMA/CD, where a bus conflict forces ALL nodes to abort sending.  
 
 
-*** Synchronization and Bit coding
+**** Synchronization and Bit coding
 
 In CAN, there is no dedicated bus clock.
 Instead CAN requires that all stations have the ability to compensate for different error sources such as clock period differences and phase drift.
@@ -494,9 +496,9 @@ But to ensure that resynchronization occurs sufficiently often, bit stuffing is 
 
 
 
-** CANopen
+*** CANopen
 
-*** TERMS
+**** TERMS
 
 - Node ID: Identies a specific node in the network, range 0-127
 - OD index + subindex: Idenditfies a specific variable in the OD.
@@ -506,7 +508,7 @@ But to ensure that resynchronization occurs sufficiently often, bit stuffing is 
   In CANopen this corresponds to one communcition channnel from one node to one or more other nodes.
   Each SDO requires two COB IDS: client->server and server->client.
 
-*** OD
+**** OD
 
 Object Dictionary.
 
@@ -516,7 +518,7 @@ The OD is structured as a list of entries, and each entry is identified by a 16-
 
 The entries 0001h-0FFFh (4094) of the OD are used to define the data types a node supports.
 
-*** SDO
+**** SDO
 
 Service data object.
 
@@ -542,7 +544,7 @@ FORMAT:
 | Fragment | 580h + NODEID |     | Specifier: read/write/abort, segment, blocktransfer  | actual data                      | actual data  |
 
 
-*** PDO
+**** PDO
 
 Process Data Object.
 
@@ -553,7 +555,7 @@ Each PDO used by a node (both TPDOs and RPDOs) have associated configuration par
 For TPDOs these include TPDO communication parameters and PDO mapping parameters.
 For RPDOs these include RPDO communication parameters and PDO mapping parameters.
 
-**** TPDO communication parameters
+***** TPDO communication parameters
 index 1800h - 19FFh
 | subindex | name      |
 |----------+-----------|
@@ -564,7 +566,7 @@ index 1800h - 19FFh
 |      etc |           |
 
 
-**** RPDO communication parameters
+***** RPDO communication parameters
 index 1400h - 15FFh
 
 | subindex | name      |
@@ -575,7 +577,7 @@ index 1400h - 15FFh
 |----------+-----------|
 |      etc |           |
 
-**** PDO Mapping Paramters
+***** PDO Mapping Paramters
 
 index 1600h-17FFh for RPDOs
 index 1A00h to 1BFFh for TPDOs
@@ -584,7 +586,7 @@ The network may be configured such that any TPDO may captured by one or more oth
 To link a PDO #n, from node a to node b, the COB id in the respective communication parameters must be set correctly.
 On node a, the COB ID at subindex 1 for TPDO at index 1800h+#n must be set the the same value as the COB ID at subindex 1 for RPDO at index 1400h+#n on node b.
 
-**** Pre-configured connection set
+***** Pre-configured connection set
 
 By default the COB IDs are assigned in such a way that no linking exists.
 Thus only the NMT master will be able to send and receive PDOs.
@@ -598,14 +600,14 @@ RPDO2 from node n is assigned 300h+n.
 
 These values are the same on all nodes.
 
-*** NMT
+**** NMT
 
 Heart beat.
 
 Node guarding.
 
 
-** socketCAN
+*** socketCAN
 https://elinux.org/CAN_Bus
 https://www.kernel.org/doc/Documentation/networking/can.txt
 
@@ -618,7 +620,7 @@ the user-facing api -- sockets -- are reused.
 
   
 
-*** configure physical can interface
+**** configure physical can interface
 
 This is done with the 'iproute2' suite, just like with other networking
 interfaces in linux.
@@ -649,7 +651,7 @@ manually.
       861        112      0       41      0       0
 
 
-*** can-utils
+**** can-utils
 https://github.com/linux-can/can-utils
 
 reading from interface can0:
@@ -664,74 +666,148 @@ Writing {0x11,0x22,0x33,...,0x88} with can-id 0x123 to interface can0:
 
   $ cansend can0 123#11.22.33.44.55.66.77.88 
 
-* EMACS
-** config
+** PCI
 
-*** reload init.el
+Peripheral Component Interface (PCI),
+is a network standard for connecting external devices to the cpu.
 
-    M-x load-file RET init.el
+This network may contain at most 256 buses, each having at most 32 devices,
+with each device having at most 8 functions.
+In practice, the amount of devices per bus is typically lower than 32,
+due to limitations in the physical protocol.
 
-** packages
-*** package menu
-enter using 
+There are two classes of devices in PCI:
 
-   M-x list-packages
+1. Bridge, a device that connects PCI-buses.
+2. non-Bridge.
 
-- i mark package for install
-- d delete
-- x download and install marked packages and their dependencies.
-- q exit
+*** BUS ACCESS
 
-** completion
-*** company
-uses plugable backends
+PCI buses allow for multiple masters.
+In fact, the standard allows multiple functions on the same device to be bus masters.
+Bus contention is resolved by a bus arbiter.
+Each device has a pair of wires #REQ and #GNT connected to the bus arbiter.
+The former is used to request bus access,
+and the latter, asserted by the bus arbiter,
+signals that the corresponding device is granted access.
+The standard states that the bus arbiter must use a fair bus scheduling algorithm.
 
-gtags
+*** TRANSACTION MODELS
+
+There are three types of transaction models in PCI.
+
+The first is programmed I/O.
+If data is to be transferred from a device to primary memory in this model,
+the cpu must in turn request each word from a device,
+copy each word from the pci network to a register,
+and then write each word to memory.
+The same method, but in reverse, is used to transfer data from primary memory to a device.
+
+The second is direct memory access (DMA).
+In this model, a device may have a programmable controller, called a DMA engine,
+that is capabable of sending sequences of data over the pci-network.
+In this model, the cpu can program a device to send a specified amount of data,
+to a specified address in primary memory.
+When all data has been transfered, the device can notify the cpu with an interrupt.
+
+The third model is peer-to-peer, where two devices can communicate directly over the pci network,
+without oversight from the cpu.
+
+*** PCI MEMORY MAP
+
+On x86 platforms, memory-mapped I/O is used to interface with PCI.
+To conserve memory addresses,
+PCI uses a dataport and an address port to read and write to a PCI device.
+The CPU first writes to the address port, targeting a bus, device and function number and a word offset.
+The CPU then reads or writes the data to the dataport to initiate the actual transaction.
+
+*** Physical Protocol
+
+Buses are parallell.
+Reflected Wave signaling.
+
+** PCI-X
+
+Introduces several improvements, but still suffer from limitations inherent in parallel buses.
 
 
-*** cedet
-semantic completion
+** PCI Express
+
+*** Protocol
+
+Layered
+
+Packet-based
+
+Split-transaction model
+
+posted
+
+non-posted
+
+*** DMA
+
+Multiple Masters: Devices can initiate transactions.
+For memory accesses transactions initiated by a device, it can be
+said that the device has a DMA engine.
+
+To support memory accesses initiated by a device, the computer system
+may employ an I/O Memory Management Unit (IOMMU). In such cases,
+the device will use "Bus addresses", while a program running on the
+processor might use other types of addresses such as virtual addresses
+to point out the same memory. This must be considered when using
+DMA buffers accessed by both a device and driver.
 
 
-*** helm-gtags
-**** config
+*** Layers
 
-(require 'setup-helm-gtags)
-(require 'setup-helm)
-** helm
+**** Transaction Layer
 
-http://tuhdo.github.io/helm-intro.html
+Message types
+
+virtual channels
+
+**** Data Link layer 
+
+ack/nak
+
+**** Physical Layer
+
+PCIe has a completely different physical layer compared to PCI.
+An important difference is that PCIe has serial, point-to-point connections instead of parallell buses.
+This is because the latter places higher constraints on connection transfer speeds compared to the former.
+
+A connection between PCIe devices is called a link.
+Each link may constist of multiple lanes;
+the standard allows for 1, 2, 4, 16 or 32 lanes per link designated as:
+1x, 2x, 4x, 16x, or 32x.
+Each link is a dual-simplex, or full-duplex connection,
+which means that data can be sent both ways simultaneously.
+
+The links use differenctial signaling in both directions.
+This means that every link has four wires: two in both directions.
+
+There is no common "bus" clock in PCIe, unlike PCI.
+Instead, each link is clocked separately.
+This is done by embedding clock information in the datastream on the sending side,
+and recovering it on the receiver side.
+To acheive this 8b/10b (PCIe gen 1, 2) or 128/130b (PCE gen 3) encoding,
+in combination with phased locked loops (PLLS) are used.
+
+*** PCIe configuration space
+In most cases, a processor can not directly send PCIe transactions
+to request configuration space data. This is done by the root complex
+on behalf of the processor.
+
+A processor initiates the transfers, through memory mapped I/O.
+However the memory mapping is direct, unlike in PCI where data ports are used;
+for each PCIe function, 4KiB of configuration space memory is mapped into
+the processors memory. This is done by configuration software (read BIOS).
+
+*** Base Address Registers
 
 
-** CTAGS
 
-Run
-
-  ctags -e -R -F TAGS .
-
-in the projectdir. '-e' is to make tags file compatible with emacs.
-
-** TRAMP
-
-Emacs module for opening files and, in conjuction with certain modes, start processes on a remote target.
-
-To specify a remote file, TRAMP uses a special syntax: '/<protocol>:<host>:<path-to-file>'.
-
-** gdb
-
-On new versions must be run with:
-
-   M-x gdb -i=mi
-
-Can be used with TRAMP to debug remote programs
-specify the program to be debug using TRAMP path syntax:  '/<protocol>:<host>:<path-to-file>'.
-
-*** TROUBLESHOOTING
-
-TRAMP may not like the PS1 defined on the remote.
-A quickfix for this:
-
-  [[ $TERM == "dumb" ]] && PS1='$ ' && return
 
 * LINUX KERNEL DEVELOPMENT
 ** Functions
@@ -825,7 +901,7 @@ M=dir
 
 Build external module in directory 'dir'.
 
-
+* OS
 * DRIVERS
 
 ** SOLARIS
@@ -1100,146 +1176,6 @@ udevd
 
 *** MISC
 modules-load.d -- Configure kernel modules to load at boot
-
-* PCI
-
-Peripheral Component Interface (PCI),
-is a network standard for connecting external devices to the cpu.
-
-This network may contain at most 256 buses, each having at most 32 devices,
-with each device having at most 8 functions.
-In practice, the amount of devices per bus is typically lower than 32,
-due to limitations in the physical protocol.
-
-There are two classes of devices in PCI:
-
-1. Bridge, a device that connects PCI-buses.
-2. non-Bridge.
-
-** BUS ACCESS
-
-PCI buses allow for multiple masters.
-In fact, the standard allows multiple functions on the same device to be bus masters.
-Bus contention is resolved by a bus arbiter.
-Each device has a pair of wires #REQ and #GNT connected to the bus arbiter.
-The former is used to request bus access,
-and the latter, asserted by the bus arbiter,
-signals that the corresponding device is granted access.
-The standard states that the bus arbiter must use a fair bus scheduling algorithm.
-
-** TRANSACTION MODELS
-
-There are three types of transaction models in PCI.
-
-The first is programmed I/O.
-If data is to be transferred from a device to primary memory in this model,
-the cpu must in turn request each word from a device,
-copy each word from the pci network to a register,
-and then write each word to memory.
-The same method, but in reverse, is used to transfer data from primary memory to a device.
-
-The second is direct memory access (DMA).
-In this model, a device may have a programmable controller, called a DMA engine,
-that is capabable of sending sequences of data over the pci-network.
-In this model, the cpu can program a device to send a specified amount of data,
-to a specified address in primary memory.
-When all data has been transfered, the device can notify the cpu with an interrupt.
-
-The third model is peer-to-peer, where two devices can communicate directly over the pci network,
-without oversight from the cpu.
-
-** PCI MEMORY MAP
-
-On x86 platforms, memory-mapped I/O is used to interface with PCI.
-To conserve memory addresses,
-PCI uses a dataport and an address port to read and write to a PCI device.
-The CPU first writes to the address port, targeting a bus, device and function number and a word offset.
-The CPU then reads or writes the data to the dataport to initiate the actual transaction.
-
-** Physical Protocol
-
-Buses are parallell.
-Reflected Wave signaling.
-
-* PCI-X
-
-Introduces several improvements, but still suffer from limitations inherent in parallel buses.
-
-
-* PCI Express
-
-** Protocol
-
-Layered
-
-Packet-based
-
-Split-transaction model
-
-posted
-
-non-posted
-
-** DMA
-
-Multiple Masters: Devices can initiate transactions.
-For memory accesses transactions initiated by a device, it can be
-said that the device has a DMA engine.
-
-To support memory accesses initiated by a device, the computer system
-may employ an I/O Memory Management Unit (IOMMU). In such cases,
-the device will use "Bus addresses", while a program running on the
-processor might use other types of addresses such as virtual addresses
-to point out the same memory. This must be considered when using
-DMA buffers accessed by both a device and driver.
-
-
-** Layers
-
-*** Transaction Layer
-
-Message types
-
-virtual channels
-
-*** Data Link layer 
-
-ack/nak
-
-*** Physical Layer
-
-PCIe has a completely different physical layer compared to PCI.
-An important difference is that PCIe has serial, point-to-point connections instead of parallell buses.
-This is because the latter places higher constraints on connection transfer speeds compared to the former.
-
-A connection between PCIe devices is called a link.
-Each link may constist of multiple lanes;
-the standard allows for 1, 2, 4, 16 or 32 lanes per link designated as:
-1x, 2x, 4x, 16x, or 32x.
-Each link is a dual-simplex, or full-duplex connection,
-which means that data can be sent both ways simultaneously.
-
-The links use differenctial signaling in both directions.
-This means that every link has four wires: two in both directions.
-
-There is no common "bus" clock in PCIe, unlike PCI.
-Instead, each link is clocked separately.
-This is done by embedding clock information in the datastream on the sending side,
-and recovering it on the receiver side.
-To acheive this 8b/10b (PCIe gen 1, 2) or 128/130b (PCE gen 3) encoding,
-in combination with phased locked loops (PLLS) are used.
-
-** PCIe configuration space
-In most cases, a processor can not directly send PCIe transactions
-to request configuration space data. This is done by the root complex
-on behalf of the processor.
-
-A processor initiates the transfers, through memory mapped I/O.
-However the memory mapping is direct, unlike in PCI where data ports are used;
-for each PCIe function, 4KiB of configuration space memory is mapped into
-the processors memory. This is done by configuration software (read BIOS).
-
-** Base Address Registers
    
 * Storage Solaris
 ** Misc
@@ -1305,16 +1241,6 @@ Use following syntax to list the files for already INSTALLED package:
 Use following syntax to list the files for RPM package:
 
   $ rpm -qlp package.rpm 
-
-* Gnu Global
-
-First, create tag file with gtags. Example:
-
-    $ find . -type f -print >/tmp/list     # make a file set
-    $ vi /tmp/list                         # customize the file set
-    $ gtags -f /tmp/list
-
-Second, use global to search for definitions and references.
 * Dtrace
 
 ** display probes
@@ -1327,25 +1253,6 @@ This example shows how to time a syscall.
 
   # dtrace -n 'syscall::write:entry { self->s = timestamp; } \
                syscall::write:return /self->s/ { @["ns"] = quantize(timestamp - self->s); self->s = 0; }'
-
-
-* Ftrace
-
-Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
-
-Or use trace-cmd
-
-** Get a list of traceable functions
-
-  # trace-cmd list -f
-
-** Time a specific function
-
-  # trace-cmd record -p function_graph -l <function-name>
-
-The trace will be saved in 'trace.dat'. Display it with
-
-  # trace-cmd record trace.dat
 * X
 ** Keyboard
 $ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
@@ -1369,57 +1276,141 @@ May be distributed as a larger work, provided that covered software has the same
 "Larger work" is work that combines covered software with other material, in *separate* files.
 
 May be distributed under a different license if compatible.
-* Build Systems
-** Meson
-https://www.youtube.com/watch?v=SCZLnopmYBM
-
-Declarative: descrive *what* you want not *how*.
-
-Supported IDEs:
-- gnomebuilder
-- eclipse
-
-written in Python
-
-Built-in support for:
-- parallel unit tests
-- coverege report
-- different build targets
-
-Rebuild shared libraries without relinking
-* Compilers
-** GCC
+* Development Tools
+** Compilers
+*** GCC
 https://gcc.gnu.org/onlinedocs/gccint.pdf
-*** Show defined macros
+**** Show defined macros
 $ gcc -xc -E -dM - </dev/null
 $ gcc -xc++ -E -dM - </dev/null
 f�r C respektive C++.
 
+*** certified compilers
+https://www.iar.com/support/resources/articles/how-to-validate-a-build-toolchain/
+** EMACS
+*** config
 
-* QT
-** Layouts
-*** Set Layout in central widget of layout.
+**** reload init.el
+
+     M-x load-file RET init.el
+
+*** packages
+**** package menu
+enter using 
+
+   M-x list-packages
+
+- i mark package for install
+- d delete
+- x download and install marked packages and their dependencies.
+- q exit
+
+*** completion
+**** company
+uses plugable backends
+
+gtags
+
+
+**** cedet
+semantic completion
+
+
+**** helm-gtags
+***** config
+
+(require 'setup-helm-gtags)
+(require 'setup-helm)
+*** helm
+
+http://tuhdo.github.io/helm-intro.html
+
+
+*** CTAGS
+
+Run
+
+  ctags -e -R -F TAGS .
+
+in the projectdir. '-e' is to make tags file compatible with emacs.
+
+*** TRAMP
+
+Emacs module for opening files and, in conjuction with certain modes, start processes on a remote target.
+
+To specify a remote file, TRAMP uses a special syntax: '/<protocol>:<host>:<path-to-file>'.
+
+*** gdb
+
+On new versions must be run with:
+
+   M-x gdb -i=mi
+
+Can be used with TRAMP to debug remote programs
+specify the program to be debug using TRAMP path syntax:  '/<protocol>:<host>:<path-to-file>'.
+
+**** TROUBLESHOOTING
+
+TRAMP may not like the PS1 defined on the remote.
+A quickfix for this:
+
+  [[ $TERM == "dumb" ]] && PS1='$ ' && return
+** Debugging and analysis
+** Code analysis
+*** Gnu Global
+
+First, create tag file with gtags. Example:
+
+    $ find . -type f -print >/tmp/list     # make a file set
+    $ vi /tmp/list                         # customize the file set
+    $ gtags -f /tmp/list
+
+Second, use global to search for definitions and references.
+*** Ftrace
+
+Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
+
+Or use trace-cmd
+
+**** Get a list of traceable functions
+
+    # trace-cmd list -f
+
+**** Time a specific function
+
+  # trace-cmd record -p function_graph -l <function-name>
+
+The trace will be saved in 'trace.dat'. Display it with
+
+# trace-cmd record trace.dat
+
+
+* Programming Languages
+** QT
+*** Layouts
+**** Set Layout in central widget of layout.
 Special case. Do this:
 
   QWidget *widget = new QWidget();
   widget->setLayout(VBoxLayout);
   setCentralWidget(widget);
 
-** QT Designer
+*** QT Designer
 Graphical design -> ui description file (xml) -> generated source code
 
-*** Layouts
+**** Layouts
 A bit finicky.
 
 A widget cannot be move to another layout if its already in one.
 This causes problems.
-*** Splitters
+**** Splitters
 How to rearrange objects within these?
-*** Custom Widgets
+**** Custom Widgets
 Use placeholders + promotion, or plugins.
 Don't know how this works, might be easier to use hand coding instead.
-* C++
-** delete constructor
+
+** C++
+*** delete constructor
 
 https://stackoverflow.com/questions/14085620/why-do-c11-deleted-functions-participate-in-overload-resolution
 
@@ -1431,7 +1422,7 @@ So the deleted constructor will be part of the overload resolution
 in order for the compiler to detect if the deleted constructor is
 wrongly used. 
 
-** overload resolution
+*** overload resolution
 
 
 https://stackoverflow.com/questions/25862821/how-does-overload-resolution-work-in-the-context-of-private-modifier
@@ -1439,10 +1430,10 @@ https://stackoverflow.com/questions/25862821/how-does-overload-resolution-work-i
 access specifiers are checked last by the compiler.
 This means that a function call may be ambiguous even though only one function is public.
 
-* POSIX Shell
+** POSIX Shell
 http://www.etalabs.net/sh_tricks.html
 
-** Pass on arguments to script
+*** Pass on arguments to script
 
 Use "$@", NOT $*, NOT $@ etc..
 See the following example:
@@ -1506,7 +1497,7 @@ arg2
 arg3
 =================================
 
-** Get path to executed script
+*** Get path to executed script
     dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 DOES NOT WORK IF SCRIPT WAS CALLED VIA SYMLINK.
@@ -1516,7 +1507,7 @@ If readlink is available use this:
     sdir=`dirname -- "$spath"`
 
 
-** Difference between $@ and $*
+*** Difference between $@ and $*
 
 * General Programming Tips
 ** Endian conversion to/from a know format 
@@ -1550,37 +1541,60 @@ https://safari.ethz.ch/architecture/fall2019/doku.php?id=schedule
 https://beginners.re/RE4B-EN.pdf
 
 
-* Containers
-** Systemd-nspawn
-*** Systemd-Nspawn is Chroot on Steroids 
+* Virtualization
+** x86 Virualization
+*** VMware Player
+**** Problem with Copy paste
+(re)install VMware tools.
+shutdown the virtual machine
+in player->manage->Virtual Machine Settings->Options->shared folders
+choose "Always Enabled"
+
+**** VMware tools
+https://kb.vmware.com/s/article/1022525
+https://kb.vmware.com/s/article/1035392
+Install vmware tools:
+1. player
+2. manage
+3. (re)install vmware tools
+
+This will cause a cd to be added to the virtual drive of the virtual machine.
+Mount it and extract the archive VMwareTools-<version>.
+In the extracted folder, run:
+
+    # ./vmware-install.pl -d
+
+The flag -d will choose default settings.
+
+** OS-level virtualization (Containers)
+*** Systemd-nspawn
+**** Systemd-Nspawn is Chroot on Steroids 
 https://www.youtube.com/watch?time_continue=501&v=s7LlUs5D9p4&feature=emb_logo
 
-**** For building, testing, profiling.
+***** For building, testing, profiling.
 Not For shipping.
 Therefore, not a competitor with docker, lxc, etc.; it lacks features that these have.
 Originally made for testing systemd.
 
-**** Creating linux nspawn containers:
+***** Creating linux nspawn containers:
 1. use package manager to install base distro packages to a specific directory
    -eg yum, for fedora, debboostrap for ubuntu/debian.
 2. run systemd-nspawn using the packages you just downloaded. 
 
 
-**** Machinectl - Machined
+***** Machinectl - Machined
 dbus service that monitors nspawn, lxc, etc. and passes on info to ps and other tools
 
-**** Journalctl -m
+***** Journalctl -m
 used to view containers
 
-** Containers with systemd - Lennart Poettering
+*** Containers with systemd - Lennart Poettering
 https://www.youtube.com/watch?v=d4SwL2t5Yh4
-*** Guest OS similar to Host OS
+**** Guest OS similar to Host OS
 Stricter requirement compared to docker.
-*** "integrated isolation"
-*** Minimal
+**** "integrated isolation"
+**** Minimal
 Sacrifice features in favour of simplicity.
-
-
 * Keyboards
 
 ** Leopold FC660M
@@ -1655,7 +1669,7 @@ Page Down
 Shift + Esc
 ~
 Fn + Esc
-* Programs
+* Misc Programs
 ** Burning
 *** K3B
 ** Other
@@ -1665,5 +1679,89 @@ http://www.sweethome3d.com/
 * Books
 ** Quantum Computing
 http://mmrc.amss.cas.cn/tlb/201702/W020170224608149940643.pdf
-* OpenScad
+* CAD
+** OpenScad
 https://github.com/runsun/OpenSCAD_Tips
+
+* Tooling
+
+** Git
+*** Submodules
+
+The file .gitmodules keeps track of modules.
+.git also keeps track of the commit to use for every submodule.
+
+   $ git pull
+
+does not update submodules.
+In addition, use:
+
+    $ git submodule update --init --recursive
+
+**** Questions: 
+why does pull not update submodules?
+Does push also push the currently checked out version of the submodules?
+** Build Systems
+*** Meson
+https://www.youtube.com/watch?v=SCZLnopmYBM
+
+Declarative: descrive *what* you want not *how*.
+
+Supported IDEs:
+- gnomebuilder
+- eclipse
+
+written in Python
+
+Built-in support for:
+- parallel unit tests
+- coverege report
+- different build targets
+
+Rebuild shared libraries without relinking
+
+
+** Gerrit
+Keeps track of changes via change ids.
+They are generated as a commit hook and included in the commit message.
+successive commits with the same change-ids will appear in gerrit as successive patch sets.
+
+*** Comments
+**** -2
+must not be merged.
+Will remain when new patch sets are pushed.
+**** -1
+suspicious but may be merged
+Will be removed if a new patch set is pushed.
+**** +1
+Looks good.
++1 does not stack; two +1 does not equal +2.
+**** +2
+Approve for merge.
+
+* Benchmarking
+** google benchmark
+** perf
+** valgrind + callgrind
+
+* Serialization
+** capnproto
+https://capnproto.org/
+"think JSON, except binary"
+** msgpack
+https://msgpack.org/index.html
+Binary serialization.
+** rapid json
+http://rapidjson.org/
+https://github.com/Tencent/rapidjson
+A fast JSON parser/generator for C++ with both SAX/DOM style API
+* Documentation
+** Drawing
+*** PlantUml
+Generate uml diagrams from textual description.
+*** Dpic
+*** Yed
+*** GraphML
+** reStructuredText
+** troff
+*** tbl
