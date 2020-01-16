@@ -1509,7 +1509,7 @@ If readlink is available use this:
 
 *** Difference between $@ and $*
 
-* General Programming Tips
+* Programming Techniques
 ** Endian conversion to/from a know format 
 Utilize the fact that the left shift, shifts towards most significant bit,
 and right shift shifts towards least significant bit (this applies to multiple languages).
@@ -1523,8 +1523,75 @@ destination is LE
 
 Works for both BE and LE host.
 
-
+** Serialization
+*** capnproto
+https://capnproto.org/
+"think JSON, except binary"
+*** msgpack
+https://msgpack.org/index.html
+Binary serialization.
+*** rapid json
+http://rapidjson.org/
+https://github.com/Tencent/rapidjson
+A fast JSON parser/generator for C++ with both SAX/DOM style API
    
+** Error handling ECUs (Adaptive Autosar)
+According to legal requirements (ISO 26262)
+The only error conditions ECU sw can face are related to information exchange
+HW errors (eg. broken cables, bad voltage, RAM problems) out of scope.
+
+
+From Autosar
+| Error      | What                                             | Response                               |                 |
+|------------+--------------------------------------------------+----------------------------------------+-----------------|
+| Error      | request not fulfilled, but execution can proceed | return error code                      | Recoverable     |
+| Corruption | runtime failure (eg out-of-memory)               | exit (unsuccessful normal termination) | non-recoverable |
+| Violation  | equivalent to assertion                          | abort(abnormal termination)            | non-recoverable |
+
+*** Error
+Use ara::core::Result
+(instead of exceptions)
+
+*** Corruption
+Not related to code defects
+eg. out-of-memory, config broken.
+
+The safest option is unnsuccessful termination
+
+Failure handler may restart program depending on context.
+
+Handle like a recoverable error as long as safely possible.
+
+main -> foo -> bar
+     <-     <-    (error detection)
+(marked
+as corruption)
+
+For out-of-memory it might be unsafe to propagate, destructor may use more memory.
+Better to terminate directly.
+
+*** Violation
+Failed assertion, precondition or postcondition not met for function.
+Stems from code defect; the caller has broken the contract with the callee.
+Not sensible to propagate error, since the caller has an error.
+-> therefore abort process
+**** Contracts
+- Prefer conditions that can be checked at compile-time (eg. strongly typed parameters).
+- preconditions should be under exclusive control of the running process.
+  -> Bad: 3d party can effect precondition after a call is made.
+  -> for multithreading:
+      use synchronization for keeping contracts/invariants.
+      However, this may be difficult.
+      But error in synchronization is error in code and should be handled as violations.
+
+***** Anti-pattern: returning an error in response to violation
+Guidelines state that return value must be handled, and cases must be tested.
+But the cases cannot be reached, so a mock would be required, which would lead to unnesescary code.
+***** Anti-pattern: expect a second guess to heal a violation
+Not realistic for an ECU.
+***** Anti-pattern: Opting out woith a Void cast.
+This masks errors if new errors are added.
+
 * Interesting Tools
 ** organice
 ** sourcetrail
@@ -1550,6 +1617,11 @@ shutdown the virtual machine
 in player->manage->Virtual Machine Settings->Options->shared folders
 choose "Always Enabled"
 
+Also, depending on the system configuration, the vmware tools daemon might not be started correctly.
+In that case run the command:
+
+    $ vmware-user
+
 **** VMware tools
 https://kb.vmware.com/s/article/1022525
 https://kb.vmware.com/s/article/1035392
@@ -1565,7 +1637,6 @@ In the extracted folder, run:
     # ./vmware-install.pl -d
 
 The flag -d will choose default settings.
-
 ** OS-level virtualization (Containers)
 *** Systemd-nspawn
 **** Systemd-Nspawn is Chroot on Steroids 
@@ -1744,17 +1815,7 @@ Approve for merge.
 ** perf
 ** valgrind + callgrind
 
-* Serialization
-** capnproto
-https://capnproto.org/
-"think JSON, except binary"
-** msgpack
-https://msgpack.org/index.html
-Binary serialization.
-** rapid json
-http://rapidjson.org/
-https://github.com/Tencent/rapidjson
-A fast JSON parser/generator for C++ with both SAX/DOM style API
+
 * Documentation
 ** Drawing
 *** PlantUml
