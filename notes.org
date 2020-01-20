@@ -1535,7 +1535,7 @@ http://rapidjson.org/
 https://github.com/Tencent/rapidjson
 A fast JSON parser/generator for C++ with both SAX/DOM style API
    
-** Error handling ECUs (Adaptive Autosar)
+** Error handling for ECUs (Adaptive Autosar)
 According to legal requirements (ISO 26262)
 The only error conditions ECU sw can face are related to information exchange
 HW errors (eg. broken cables, bad voltage, RAM problems) out of scope.
