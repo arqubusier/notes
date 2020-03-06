@@ -1255,7 +1255,7 @@ This example shows how to time a syscall.
                syscall::write:return /self->s/ { @["ns"] = quantize(timestamp - self->s); self->s = 0; }'
 * X
 ** Keyboard
-$ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
+   $ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
 * Licenses
 ** Apache 2.0
 
@@ -1356,7 +1356,8 @@ A quickfix for this:
 
   [[ $TERM == "dumb" ]] && PS1='$ ' && return
 ** Debugging and analysis
-** Code analysis
+*** sourcetrail
+https://www.sourcetrail.com/blog/open_source/** Code analysis
 *** Gnu Global
 
 First, create tag file with gtags. Example:
@@ -1383,6 +1384,32 @@ Or use trace-cmd
 The trace will be saved in 'trace.dat'. Display it with
 
 # trace-cmd record trace.dat
+
+*** gdbgui
+https://www.gdbgui.com/
+
+*** ThreadSanitizer
+https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual
+
+each 64-bit word of the application has N corresponding *shadow words* each 64-bit in length.
+A shadow word represents a memory access to a single location.
+N words that map to the same location is called a shadow state.
+
+ThreadSanitizer uses events to detect data races.
+Events include:
+ - locking
+ - unlocking
+ - condition variable signal
+ - condition variable wait
+ - read
+ - write
+
+To determine the order of reads and write performed in different threads,
+tsan uses locking and condition variable events to infer relationships.
+
+**** Problem with std::mutex
+Since the standard library is not compiled with tsan, there is no instrumentation performed on
+mutual exclusion functions in the standard library.
 
 
 * Programming Languages
@@ -1592,12 +1619,17 @@ Not realistic for an ECU.
 ***** Anti-pattern: Opting out woith a Void cast.
 This masks errors if new errors are added.
 
-* Interesting Tools
+** Testing
+*** Mock Objects
+A mock object m, has the same interface as an object o, and m can be used to inspect interactions from a user of an o object.
+*** Fake Objects
+Objects that mimic real ones.
+
+* Misc Tools
+** org-mode
 ** organice
-** sourcetrail
-https://www.sourcetrail.com/blog/open_source/
-** gdbgui
-https://www.gdbgui.com/
+** recutils
+
 
 * Courses
 
@@ -1606,7 +1638,6 @@ https://safari.ethz.ch/architecture/fall2019/doku.php?id=schedule
 
 * Reverse Engineering
 https://beginners.re/RE4B-EN.pdf
-
 
 * Virtualization
 ** x86 Virualization
@@ -1754,8 +1785,7 @@ http://mmrc.amss.cas.cn/tlb/201702/W020170224608149940643.pdf
 ** OpenScad
 https://github.com/runsun/OpenSCAD_Tips
 
-* Tooling
-
+* Programming Tools
 ** Git
 *** Submodules
 
@@ -1791,7 +1821,6 @@ Built-in support for:
 
 Rebuild shared libraries without relinking
 
-
 ** Gerrit
 Keeps track of changes via change ids.
 They are generated as a commit hook and included in the commit message.
@@ -1810,6 +1839,34 @@ Looks good.
 **** +2
 Approve for merge.
 
+** Google Test
+
+** Google Mock
+
+A mock call specification has the syntax:
+
+EXPECT_CALL(mock_object, method(matchers))
+    .Times(cardinality)
+    .WillOnce(action)
+    .WillRepeatedly(action);
+
+matchers filters the specification
+
+Times, WillOnce, WillRepeatedly are the requirements for this specification.
+** Gitlab
+*** Merge Train
+Is a mechanism to handle concurrent merge requests.
+Consider merge requests A and B, where A will cause B to fail tests if merged before.
+If the A merge starts, and shortly after B merge starts, then master will end up in a failed state.
+
+When using merge trains, pipeline (which include tests) jobs will be run on each MR and if they fail the MR will not be merged.
+Also, when the A merge starts a merge train will be created.
+When the B merge starts it will be added to the merge train.
+This means that it will do a merge between A and master on a new branch.
+Merge B on that point, and run a pipeline.
+When the pipeline fails, B will not be merged, and thus the master will not be in a broken state.
+In addition the method of merging the previous MR and applying the changes on top, means that pipelines can be run in parallel.
+  
 * Benchmarking
 ** google benchmark
 ** perf
