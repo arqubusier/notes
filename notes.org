@@ -229,9 +229,9 @@ decoupling capacitance must be between 1uF and 10uF.
 - Selected Suspend
  
 **** Data Signalling Rate 
-- High speed data is clocked at 480.00Mb/s with a data signalling tolerance of ± 500ppm.
-- Full speed data is clocked at 12.000Mb/s with a data signalling tolerance of ±0.25% or 2,500ppm.
-- Low speed data is clocked at 1.50Mb/s with a data signalling tolerance of ±1.5% or 15,000ppm.
+- High speed data is clocked at 480.00Mb/s with a data signalling tolerance of Â± 500ppm.
+- Full speed data is clocked at 12.000Mb/s with a data signalling tolerance of Â±0.25% or 2,500ppm.
+- Low speed data is clocked at 1.50Mb/s with a data signalling tolerance of Â±1.5% or 15,000ppm.
 
 
 *** Chapter 3
@@ -296,8 +296,8 @@ On endpoint 0 => all devices must listen.
 
 *** Chapter 5
 * mc-kort
-** säkerhetskontroll
-*** TODO kolla vilken mc jag får låna till uppkörning och hitta manual till denna
+** sÃ¤kerhetskontroll
+*** TODO kolla vilken mc jag fÃ¥r lÃ¥na till uppkÃ¶rning och hitta manual till denna
 *** TODO skriv checklista utan anvisningar
 * Network
 
@@ -1384,5 +1384,339 @@ Rebuild shared libraries without relinking
 *** Show defined macros
 $ gcc -xc -E -dM - </dev/null
 $ gcc -xc++ -E -dM - </dev/null
-f�r C respektive C++.
+för C respektive C++.
+
+
+* Embedded ARM
+** Libraries
+*** Newlib
+https://sourceware.org/newlib/
+C library for embedded systems.
+*** MBED
+
+Mbed OS is an open-source operating system for platforms using Arm microcontrollers designed specifically for Internet of Things (IoT) devices
+
+Mbed OS provides an abstraction layer for the microcontrollers it runs on,
+so that developers can focus on writing C/C++ applications that call functionality available on a range of hardware.
+Mbed OS applications can be reused on any Mbed-compatible platform.
+
+** Toolchains
+*** GNU Arm Embedded Toolchain
+Open Source toolchain for Arm Cortex-M and Cortex-R.
+Uses GCC and newlib.
+"arm-none-eabi"
+
+Linux, Mac, and source packages, readme.txt is in the share/doc/gcc-arm-none-eabi
+
+This toolchain is released with two prebuilt C libraries based on newlib:
+one is the standard newlib and the other is newlib-nano for code size.
+To distinguish them, we rename the size optimized libraries as:
+
+  libc.a --> libc_nano.a
+  libg.a --> libg_nano.a
+
+
+** ARM ISA
+ISA for ARM processors.
+Uses both 32-bit wide instructions.
+
+** Thumb ISA
+ISA for ARM processors.
+Uses both 16-bit and 32-bit wide instructions.
+
+** Cortex M3
+*** Memory model
+Fixed memory map with 4 GB of adderssable memory.
+** CMCIS
+    
+Cortex Microcontroller Software Interface Standard
+Vendor independent*
+https://arm-software.github.io/CMSIS_5/
+
+*** Core (Cortex-M)
+Arm provides template files, complete source files for concrete devices
+ are provided by vendor. Device family pack (DFP).
+
+*** Pack 
+    DFP
+    Vendor provides device family specific packs based on arm CMCSIS templates.
+Meant to be used by supported IDE.
+**** Keil.STM32F1xx_DFP.2.3.0
+Includes STM32F10x Standard Peripherals Library Drivers (StdPeriph_Driver)
+****  RTE_Components.h
+ "The build environment should generate a C/C++ include file with the name RTE_Components.h"
+ Contains macros to define current device and other things.
+ 
+*** Linking?
+
+*** TODO License
+
+DFP
+
+https://developer.arm.com/embedded/cmsis/cmsis-packs/devices/STMicroelectronics/STM32F103C8
+
+“Middleware” means all of the following software components; (a) RL-TCPnet (networking suite) in object code form;
+(b) RL-USB (USB host and device) in object code form; (c) RL-CAN (CAN interface) in source code form;
+(d) RL-Flash (flash file system) in object code form;
+and (e) GUI emWin in object code form for ARM7, ARM9, Cortex-M series, and Cortex-R4 processor-based devices only.
+
+Middleware: YOU ACKNOWLEDGE AND AGREE THAT YOU SHALL NOT USE MIDDLEWARE UNLESS YOU HAVE LICENSED MDK-ARM PROFESSIONAL EDITION
+
+LIBRARIES:
+(b) incorporate and link the helper libraries into, or use them in, Software Applications;
+(c) reproduce and distribute the Target Libraries, only in object code form, and only as part of Software Applications.
+
+
+** STM
+*** IDE
+**** Eclipse
+plugin https://gnu-mcu-eclipse.github.io/install/
+Can be used with Stardard peripheral library
+**** System Workbench
+Built on top of Eclipse.
+**** Stm32Cube
+
+*** Peripheral Library requirements
+Must be free as in beer, preferably as in freedom.
+Must be allowed to distribute (possibly in object-form) inside target application.
+Must be able to use it with text editor and buildsystem from cli (Make, ninja, etc).
+Preferably be compatible with a bread range of devices.
+*** Libraries
+**** HAL
+**** Standard Peripheral Library
+Uses CMSIS.
+Supports the following toolchains Out-of-the-box:
+- arm-mdk
+- ride7
+- iar
+- TrueSTUDIO (atollic)
+  
+How is startup and linking handled?
+***** CMSIS License
+May distribute source provided copyright notices are included.
+Not allowed to assert patents agains ARM.
+Not allowed to use Arm trade name...
+Provided as-is...
+
+
+
+*** flashing
+**** stlink
+ 
+Use the program stlink, or stlink-gui, available in arch linux.
+Use sudo or add the following udev rule (for the st-link-v2 device)
+
+    ACTION=="add" SUBSYSTEM=="usb", ATTR(idVendor)=="0483", 
+	ATTR(idproduct)=="3744", MODE="0666", GROUP="usbusers"
+
+**** st-flash
+for my bluepill, the flash memory begins at 0x08000000 according to openocd.
+Perhaps the stm-bootloader is located in the lower addresses?
+Indeed, the boot jumpers affect operation:
+they must be set correctly for programming/flashing respectively.
+
+| boot0 | boot1 | mode                       |
+|-------+-------+----------------------------|
+|     x |     0 | Main Flash                 |
+|     0 |     1 | System Flash (boot loader) |
+|     1 |     1 | Embedded SRAM?             |
+
+Is it possible to flash via stlink, with Main Flash selected?
+
+Use the following command to flash a binary format
+
+    st-flash write test.bin 0x08000000
+
+**** openocd
+targets
+flash banks
+reset halt
+reset run
+stm32f1x mass_erase num
+flash write_bank num filename offset
+
+target remote localhost:3333
+**** gdb
+
+***** bluepill
+#daemon configuration ################################################
+telnet_port 4444
+gdb_port 3333
+
+#interface configuration #############################################
+source [find interface/stlink-v2.cfg]
+
+#board configuration #################################################
+
+source [find target/stm32f1x.cfg].cfg
+
+
+*** building
+**** Arduino
+**** gcc
+
+     arm-none-eabi-gcc 
+***** programs
+- arm-none-eabi-binutils
+  - objcopy
+  - objdump
+- gcc-arm-none-eabi
+
+***** stm32f103xx
+
+      $ arm-none-eabi-gcc -g -O0 -Wall -mlittle-endian -mthumb -mcpu=cortex-m3 main.c -o main.elf
+
+for linking need linker script.
+Need to map all sections in assember:
+
+    - .text (code)
+    - .rodata (global read only)
+    - .data (mutable global data)
+    - vector table
+
+The .data section is a bit special: it will be mapped into stm code area during flashing,
+and later copied into the stm SRAM area during target run-time.
+In gnu ld terms, VMA refers to the address in flash of .data, and LMA refers to the runtime addres of it.
+
+***** Inspection
+
+$ arm-none-eabi-objdump -h test_program.o
+
+$ arm-none-eabi-objdump -h test_program.elf
+
+$ arm-none-eabi-nm --numeric-sort test_program.elf
+
+****** -mlittle-endian
+arm is little endian
+****** -mthumb
+thumb instruction set, see stm programming manual
+
+-mthumb-interwork
+-mcpu=cortex-m3
+-fsingle-precision-constant
+-Wdouble-promotion
+
+****** Linking
+need linker script
+.LD
+
+configuration depends on cortex m3 memory model.
+
+**** g++
+     https://stackoverflow.com/questions/21527256/when-is-arm-exidx-is-used
+
+.ARM.exidx is the section containing information for unwinding the stack.
+If your C program has functions that print out a stack backtrace,
+the functions will likely depend on this section being present.
+
+Easy fix disable exceptions
+*** Bootloader
+where is it stored?
+
+*** stm32f103xx
+**** Peripheral clocks
+APB2 peripheral clock enable register (RCC_APB2ENR)
+Address: 0x18
+Reset value: 0x0000 0000
+Access: word, half-word and byte access
+No wait states, except if the access occurs while an access to a peripheral in the APB
+
+bit2-8 enable portA-G
+portc bit4 = 0x10
+
+RCC start 0x40021000
+
+**** GPIO
+modes:
+- output push-pull, open-drain
+- output pull-up, output pull-down
+
+Peripherals won't respond correctly if their clocks haven't been enabled.
+Enable all peripheral clocks before you try to do anything with the
+peripherals.
+
+After each device reset, all peripheral clocks are disabled
+(except for the SRAM and FLITF).
+Before using a peripheral you have to enable its clock in the RCC_AHBENR,
+RCC_APB2ENR or RCC_APB1ENR register.
+
+4 registers per port. The registers for a port are layed out next to eachother.
+CRL @0x00 32-bit
+CRH @0x04 32-bit
+IDR @0x08 lower 16-bit
+ODR @0x0C lower 16-bit
+BSRR@0x10
+BRR @0x14
+LCKR@0x18
+
+Port addresses is shown in datasheet memory map
+| port | address     |
+| A    | 0x4001 0800 |
+| B    | 0x4001 0C00 |
+| C    | 0x4001 1000 |
+| D    | 0x4001 1400 |
+| E    | 0x4001 1800 |
+
+must be accessed as 32-bit words
+***** GPIOx_CRL bits 0-7, GPIOx_CRH bits 8-15
+MODE, select IN/OUT and OUT speed, 2 bit
+CNF, select sub mode 2 bit
+GPIOx_IDR
+GPIOx_ODR
+
+****** Example output push-pull Port A 
+0b1001 - 0b1011 | 0x9-0xb for corresponding bit in CRL @0x4001 1800
+0b1001 - 0b1011 | 0x9-0xb for corresponding bit in CRH @0x4001 1840
+Ox0000 - 0x00FF                                    ODR @0x4001 18C0
+**** Interrupts
+     Controlled by NVIC on the processor core
+
+***** EXTI
+External interrupts triggered via GPIO
+
+Interrupt EXTIx is mapped to PINx. The port to use is configured A-G.
+
+***** DONE Difference between interrupt request and event request?
+      Events can be used to wake up from a low-power mode.
+      But it seems that interrupt can be used for this purpose as well.
+      However, events might be faster.
+
+For other purposes use interrupts.
+***** TODO configure interrupt registers
+***** TODO configure interrupt handler
+      Need to provide function pointer for the interrupt handler in the vector table.
+This is done automatically by libopencm3. E.g. for exti0 you just need to provide the definition for the following function:
+void exti0_isr(void)
+
+***** bluepill pinA0 triggers when pit8 configured
+**** Timers
+
+     Different clock sources for timers may be used.
+
+timer_set_prescaler(TIM2, ((rcc_apb1_frequency * 2) / 5000));
+
+RM0008 page 126 figure 11 shows which clock is used for the internal clock.
+
+***** Interrupts
+Output compare flag set in status register even though it is not configured: 
+
+If channel CC1 is configured as output:
+This flag is set by hardware when the counter matches the compare value. It is cleared by
+software.
+0: No match.
+1: The content of the counter TIMx_CNT matches the content of the TIMx_CCR1 register.
+When the contents of TIMx_CCR1 are greater than the contents of TIMx_ARR, the CC1IF
+bit goes high on the counter overflow.
+
+
+***** Output
+set alternate function on pin for timer channel.
+
+
+
+**** Devboard
+***** Bluepill
+pinmapping
+PC-13 internal led
+
 
