@@ -812,7 +812,7 @@ the processors memory. This is done by configuration software (read BIOS).
 
 
 
-
+    
 * LINUX KERNEL DEVELOPMENT
 ** Functions
 devm_kzalloc
@@ -1441,6 +1441,42 @@ Use placeholders + promotion, or plugins.
 Don't know how this works, might be easier to use hand coding instead.
 
 ** C++
+*** consexptr
+**** constexpr values
+May be any literal type:
+- floating point literal
+- character literal..
+- literal objects.
+Use anywhere literals may be used.
+
+literal objects:
+created by constexpr constructor 
+
+**** constexpr computaions
+- Free functions
+- Member functions
+- Constructors
+Can run at both compile time and runtime.
+
+not part of overload resolution.
+
+Requirements:
+C++11 says what you can do
+C++14 says what you can't do
+
+- no new
+- not virtual
+- returns literal type or reference to literal type.
+- parametrs literal type or reference to literal type.
+- etc.
+
+constexpr Constructor 
+- constructor body may be used (C++14)
+- non-static members and base class must be init-ed
+- all invoked ctors must be constexpr
+- all assignments in initializer list constant expression.
+
+
 *** delete constructor
 
 https://stackoverflow.com/questions/14085620/why-do-c11-deleted-functions-participate-in-overload-resolution
@@ -1958,6 +1994,29 @@ LIBRARIES:
 (b) incorporate and link the helper libraries into, or use them in, Software Applications;
 (c) reproduce and distribute the Target Libraries, only in object code form, and only as part of Software Applications.
 
+** Synchronization
+*** Linked load/store
+Available for cortex-M (and others)
+ISA synchronization mechanism.
+
+There is hardware support for monitoring accesses to shared memory.
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dht0008a/CJAGCFAF.html
+For a single processor there is a local monitor.
+For multiple processors accessing the same memory there is a global monitor.
+A state machine per memory address is used to detect concurrent accesses.
+
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dht0008a/ch01s02s01.html
+LDREX loads from an address into a register and markes that address as exclusive.
+STREX tries to store the register contents to an address, and saves what happened, whether it succeded or not, in another register.
+If that address was marked as exclusive by this processor,
+and a store happened to this register (by this processor? or only other processors?) after the corresponding LDREX,
+but before this STREX, this operation will not succeed.
+
+*** stdatomic.h
+Header file in c11.
+newlib refers to gcc implementation for its function.
+arm-gcc refers to DEF_SYNC_BUILTIN which must be implemented
+It is not specified what DEF_SYNC_BUILTIN should do. Look at its uses to infer its semantics.
 
 ** STM
 *** IDE
