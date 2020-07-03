@@ -1851,6 +1851,47 @@ Objects that mimic real ones.
 
 *** Negative Testing
 Also known as failure testing or error-path testing.
+* Computer Science
+** IEEE 754
+*** TODO lookup
+https://www.youtube.com/watch?v=k12BJGSc2Nc
+exponent shift-127 encoded
+std::nextafter
+*** Denormalized (subnormal)
+    
+https://en.wikipedia.org/wiki/Denormal_number
+In a normal floating-point value, there are no leading zeros in the significand;
+rather, leading zeros are removed by adjusting the exponent (for example, the number 0.0123 would be written as 1.23 × 10−2).
+Denormal numbers are numbers where this representation would result in an exponent that is below the smallest representable exponent (the exponent usually having a limited range). 
+Such numbers are represented using leading zeros in the significand. 
+
+ A floating-point number may be recognized as denormal whenever its exponent is the least value possible. For binary IEEE 745 exponent = 0 indicates subnormal.
+
+*** Normalized
+    
+1 < exponent < exponent max
+
+*** Special
+inf: exponent == max  and mantissa == 0
+NaN: exponent == max and maintisa != 0
+
+
+** String to floating point
+https://legacy.cs.indiana.edu/~dyb/pubs/FP-Printing-PLDI96.pdf
+
+v+ successive floating point number
+v- successive floating point number
+
+Shortest rounding path? round-trip?
+rounding strategies
+
+https://www.researchgate.net/publication/2295884_How_to_Read_Floating_Point_Numbers_Accurately
+
+Can use floating point arithmetic for many cases:
+Use single floating point multiplication/division to scale input
+then test if the error is sufficiently small.
+If not we have to resort to a special algorithm that uses arbitrarily big integers.
+** 
 * Misc Tools
 ** org-mode
 ** organice
