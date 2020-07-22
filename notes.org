@@ -906,7 +906,7 @@ M=dir
 Build external module in directory 'dir'.
 
 * OS
-* DRIVERS
+** DRIVERS
 
 ** SOLARIS
 
@@ -1181,14 +1181,14 @@ udevd
 *** MISC
 modules-load.d -- Configure kernel modules to load at boot
    
-* Storage Solaris
-** Misc
+** Storage Solaris
+*** Misc
 
 Identify and format disks.
 
    $ format
 
-* ZFS
+** ZFS
 
 3 important abstractions:
 
@@ -1196,48 +1196,48 @@ Identify and format disks.
 - pool: Storage area, is linked to a number of vdevs.
 - dataset: Structured data within a pool, eg. filesystem.
 
-** zpool
+*** zpool
 
 Manage pools
 
-*** find pools
+**** find pools
 
     $ zpool import
 
-*** import a pool
+**** import a pool
 
     $ zpool import <pool>
 
-*** export pool
+**** export pool
 
 Exports the pool from the system.
 Makes it possible to import into another system.
 
     $ zpool export <pool>
 
-** zfs
+*** zfs
 
 Manage datasets.
 
-*** list all datasets
+**** list all datasets
 
     $ zfs list
 
-*** Mount an unmounted dataset to a temporary location
+**** Mount an unmounted dataset to a temporary location
 
 Only works when filesystem configured as non-legacy.
 
     $ zfs mount -o mountpoint=<tmp-mountpoint> <filesystem>
 
-*** unmount
+**** unmount
 
     $ zfs umount
 
 
 
 
-* RPM
-** list files in package
+** RPM
+*** list files in package
 Use following syntax to list the files for already INSTALLED package:
 
   $ rpm -ql package-name
@@ -1245,41 +1245,11 @@ Use following syntax to list the files for already INSTALLED package:
 Use following syntax to list the files for RPM package:
 
   $ rpm -qlp package.rpm 
-* Dtrace
-
-** display probes
-
-   # dtrace -l
-
-** time a function
-
-This example shows how to time a syscall.
-
-  # dtrace -n 'syscall::write:entry { self->s = timestamp; } \
-               syscall::write:return /self->s/ { @["ns"] = quantize(timestamp - self->s); self->s = 0; }'
-* X
-** Keyboard
+** X
+*** Keyboard
    $ setxkbmap -model pc104 -layout cz,us -variant ,dvorak -option grp:alt_shift_toggle
-* Licenses
-** Apache 2.0
 
-There does not appear to be any requirment that a licensee make the the source of a derivative work be made available.
-There is no requirement that derivative works be licensed under the same license: "license to ... sublicense"
-from the chapter "Grant of Copyright License".
-*** Grant of Patent License
 
-I interpret this as: if a contributor makes a contribution that falls under a patent that the contributor owns,
-then a licensee of the work gets a license to make, have made, use, offer to sell, sell, import, and otherwise transfer the WORK.
-i.e. the patent license is limited to the work.
-
-** Mozilla Public License 2.0
-
-Requires that the licensee make the source code form of the covered software be made available.
-
-May be distributed as a larger work, provided that covered software has the same license.
-"Larger work" is work that combines covered software with other material, in *separate* files.
-
-May be distributed under a different license if compatible.
 * Development Tools
 ** Compilers
 *** GCC
@@ -1359,62 +1329,6 @@ TRAMP may not like the PS1 defined on the remote.
 A quickfix for this:
 
   [[ $TERM == "dumb" ]] && PS1='$ ' && return
-** Debugging and analysis
-*** sourcetrail
-https://www.sourcetrail.com/blog/open_source/** Code analysis
-*** Gnu Global
-
-First, create tag file with gtags. Example:
-
-    $ find . -type f -print >/tmp/list     # make a file set
-    $ vi /tmp/list                         # customize the file set
-    $ gtags -f /tmp/list
-
-Second, use global to search for definitions and references.
-*** Ftrace
-
-Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
-
-Or use trace-cmd
-
-**** Get a list of traceable functions
-
-    # trace-cmd list -f
-
-**** Time a specific function
-
-  # trace-cmd record -p function_graph -l <function-name>
-
-The trace will be saved in 'trace.dat'. Display it with
-
-# trace-cmd record trace.dat
-
-*** gdbgui
-https://www.gdbgui.com/
-
-*** ThreadSanitizer
-https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual
-
-each 64-bit word of the application has N corresponding *shadow words* each 64-bit in length.
-A shadow word represents a memory access to a single location.
-N words that map to the same location is called a shadow state.
-
-ThreadSanitizer uses events to detect data races.
-Events include:
- - locking
- - unlocking
- - condition variable signal
- - condition variable wait
- - read
- - write
-
-To determine the order of reads and write performed in different threads,
-tsan uses locking and condition variable events to infer relationships.
-
-**** Problem with std::mutex
-Since the standard library is not compiled with tsan, there is no instrumentation performed on
-mutual exclusion functions in the standard library.
-
 
 * Programming Languages
 ** QT
@@ -2531,11 +2445,86 @@ pinmapping
 PC-13 internal led
 
 
-* Benchmarking
+* Debugging, Benchmarking, Inspection
+** sourcetrail
+https://www.sourcetrail.com/blog/open_source/** Code analysis
+** Gnu Global
+
+First, create tag file with gtags. Example:
+
+    $ find . -type f -print >/tmp/list     # make a file set
+    $ vi /tmp/list                         # customize the file set
+    $ gtags -f /tmp/list
+
+Second, use global to search for definitions and references.
+** Ftrace
+
+Manipulate via pseudo-filesystem in /sys/kernel/debug/tracing
+
+Or use trace-cmd
+
+*** Get a list of traceable functions
+
+    # trace-cmd list -f
+
+*** Time a specific function
+
+  # trace-cmd record -p function_graph -l <function-name>
+
+The trace will be saved in 'trace.dat'. Display it with
+
+# trace-cmd record trace.dat
+
+** gdbgui
+https://www.gdbgui.com/
+
+** ThreadSanitizer
+https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual
+
+each 64-bit word of the application has N corresponding *shadow words* each 64-bit in length.
+A shadow word represents a memory access to a single location.
+N words that map to the same location is called a shadow state.
+
+ThreadSanitizer uses events to detect data races.
+Events include:
+ - locking
+ - unlocking
+ - condition variable signal
+ - condition variable wait
+ - read
+ - write
+
+To determine the order of reads and write performed in different threads,
+tsan uses locking and condition variable events to infer relationships.
+
+*** Problem with std::mutex
+Since the standard library is not compiled with tsan, there is no instrumentation performed on
+mutual exclusion functions in the standard library.
+
 ** google benchmark
 ** perf
 ** valgrind + callgrind
 
+** Dtrace
+
+** display probes
+
+   # dtrace -l
+
+** time a function
+
+This example shows how to time a syscall.
+
+  # dtrace -n 'syscall::write:entry { self->s = timestamp; } \
+               syscall::write:return /self->s/ { @["ns"] = quantize(timestamp - self->s); self->s = 0; }'
+
+** Map files
+Can be produced by linker, for example gcc's linker.
+Shows, among other things addresses and sizes of entities in the executable sections.
+
+Add the following flags to gcc to generate a linker map file.
+
+    LDFLAGS += -Wl,-Map=output.map
 
 * Documentation
 ** Drawing
@@ -2547,3 +2536,25 @@ Generate uml diagrams from textual description.
 ** reStructuredText
 ** troff
 *** tbl
+
+* Misc
+** Licenses
+*** Apache 2.0
+
+There does not appear to be any requirment that a licensee make the the source of a derivative work be made available.
+There is no requirement that derivative works be licensed under the same license: "license to ... sublicense"
+from the chapter "Grant of Copyright License".
+**** Grant of Patent License
+
+I interpret this as: if a contributor makes a contribution that falls under a patent that the contributor owns,
+then a licensee of the work gets a license to make, have made, use, offer to sell, sell, import, and otherwise transfer the WORK.
+i.e. the patent license is limited to the work.
+
+*** Mozilla Public License 2.0
+
+Requires that the licensee make the source code form of the covered software be made available.
+
+May be distributed as a larger work, provided that covered software has the same license.
+"Larger work" is work that combines covered software with other material, in *separate* files.
+
+May be distributed under a different license if compatible.
