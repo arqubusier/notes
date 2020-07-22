@@ -2012,11 +2012,42 @@ If that address was marked as exclusive by this processor,
 and a store happened to this register (by this processor? or only other processors?) after the corresponding LDREX,
 but before this STREX, this operation will not succeed.
 
+There is support in arm-gcc, via ARM C Language Extensions (ACLE),
+but in 2.1 __ldrex and __strex has been marked deprecated, in favor of stdatomic.h in C11.
+However, currently (arm-gcc-9) this is not implemented for cortex-m.
+There is support when targeting linux.
+
 *** stdatomic.h
 Header file in c11.
 newlib refers to gcc implementation for its function.
 arm-gcc refers to DEF_SYNC_BUILTIN which must be implemented
 It is not specified what DEF_SYNC_BUILTIN should do. Look at its uses to infer its semantics.
+
+** NVIC
+*** Interrupt types
+Not configurable priority, probably always enabled
+- reset
+- NMI
+- hard fault
+
+configurable priority, can these be disabled?
+- Bus fault
+- User fault
+
+configurable priority, can be disabled.
+-irq
+
+**** Disable irq interrupts
+libopencm3 has __disable_interrupts which calls:
+
+    __asm__ volatile ("CPSID I\n");
+
+From stm PM0056:
+
+    CPSID i  ;Disable interrupts and configurable fault handlers (set PRIMASK)
+
+
+
 
 ** STM
 *** IDE
@@ -2226,6 +2257,8 @@ Ox0000 - 0x00FF                                    ODR @0x4001 18C0
 External interrupts triggered via GPIO
 
 Interrupt EXTIx is mapped to PINx. The port to use is configured A-G.
+
+one interrupt for all buttons, individual gpios for sensing specific button?
 
 ***** DONE Difference between interrupt request and event request?
       Events can be used to wake up from a low-power mode.
