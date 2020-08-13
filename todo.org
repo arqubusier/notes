@@ -1,0 +1,5 @@
+* Tasks
+** TODO Automate reviewing in org
+** DONE filter helm projectile
+In the default projectile indexing method, "alien", ignored files are picked up via vcs, eg. .gitignore and .git/info/exclude.
+
